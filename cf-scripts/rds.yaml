@@ -1,0 +1,174 @@
+AWSTemplateFormatVersion: "2010-09-09"
+
+Description: RDS instance stack for microservices project. 
+
+Parameters:
+  Environment:
+    Type: String
+    Default: dev
+    AllowedValues:
+      - staging
+      - dev
+      - prod
+    Description: Environment name used to tag and name all resources
+
+  allocatedStorage:
+    Type: Number
+    Default: 20
+    Description: Allocated storage for RDS instance in GB
+
+  dbInstanceClass:
+    Type: String
+    Default: db.t3.micro
+    Description: DB instance class for RDS instance
+
+  dbengine:
+    Type: String
+    Default: postgres
+    Description: Database engine for RDS instance (e.g. postgres, mysql)
+
+  dbengineVersion:
+    Type: String
+    Default: "16.13"
+    Description: Database engine version for RDS instance (e.g. 13.4 for postgres, 8.0 for mysql)
+
+  storageType:
+    Type: String
+    Default: gp2
+    Description: Storage type for RDS instance (e.g. gp2, io1)
+
+  dbName1:
+    Type: String
+    Default: user-db
+    Description: Name of the database to create in RDS instance
+
+  dbName2:
+    Type: String
+    Default: order-db
+    Description: Name of the database to create in RDS instance
+
+  dbName3:
+    Type: String
+    Default: product-db
+    Description: Name of the database to create in RDS instance
+
+  dbMasterUsername:
+    Type: String
+    Default: admin
+    Description: Master username for RDS instance
+  
+Resources:
+
+  SubnetGroup:
+    Type: AWS::RDS::DBSubnetGroup
+    Properties:
+      DBSubnetGroupName: !Sub "${Environment}-rds-subnet-group"
+      DBSubnetGroupDescription: Subnet group for RDS instance
+      SubnetIds:
+        - !ImportValue
+          Fn::Sub: "${Environment}-private-subnet-1-id"
+        - !ImportValue
+          Fn::Sub: "${Environment}-private-subnet-2-id"
+      Tags:
+        - Key: Name
+          Value: !Sub "${Environment}-rds-subnet-group"
+
+
+
+  UserRDSInstance:
+    Type: AWS::RDS::DBInstance
+    Properties:
+      DBInstanceIdentifier: !Sub "${Environment}-rds-instance"
+      AllocatedStorage: !Ref allocatedStorage
+      DBInstanceClass: !Ref dbInstanceClass
+      DBName: !Ref dbName1
+      Engine: !Ref dbengine
+      EngineVersion: !Ref dbengineVersion
+      StorageType: !Ref storageType
+      UserDBSecretArn: !ImportValue
+        Fn::Sub: "${Environment}-user-db-master-password-arn"
+      MasterUsername: !Ref dbMasterUsername
+      MasterUserDBMasterPassword: {{resolve:secretsmanager:${UserDBSecretArn}:SecretString:password}}
+      VPCSecurityGroups:
+        - !ImportValue
+          Fn::Sub: "${Environment}-rds-sg-id"
+      DBSubnetGroupName: !Ref SubnetGroup
+      MultiAZ: true
+      PubliclyAccessible: false
+      SkipFinalSnapshot: true
+      Tags:
+        - Key: Name
+          Value: !Sub "${Environment}-rds-instance"
+
+
+
+  ProductRDSInstance:
+    Type: AWS::RDS::DBInstance
+    Properties:
+      DBInstanceIdentifier: !Sub "${Environment}-rds-instance-2"
+      AllocatedStorage: !Ref allocatedStorage
+      DBInstanceClass: !Ref dbInstanceClass
+      DBName: !Ref dbName2
+      Engine: !Ref dbengine
+      EngineVersion: !Ref dbengineVersion
+      StorageType: !Ref storageType
+      ProductDBSecretArn: !ImportValue
+        Fn::Sub: "${Environment}-product-db-master-password-arn"
+      MasterUsername: !Ref dbMasterUsername
+      MasterUserPassword: {{resolve:secretsmanager:${ProductDBSecretArn}:SecretString:password}}
+      VPCSecurityGroups:
+        - !ImportValue
+          Fn::Sub: "${Environment}-rds-sg-id"
+      DBSubnetGroupName: !Ref SubnetGroup
+      MultiAZ: true
+      PubliclyAccessible: false
+      SkipFinalSnapshot: true
+      Tags:
+        - Key: Name
+          Value: !Sub "${Environment}-rds-instance-2"
+
+
+  OrderRDSInstance:
+    Type: AWS::RDS::DBInstance
+    Properties:
+      DBInstanceIdentifier: !Sub "${Environment}-rds-instance-3"
+      AllocatedStorage: !Ref allocatedStorage
+      DBInstanceClass: !Ref dbInstanceClass
+      DBName: !Ref dbName3
+      Engine: !Ref dbengine
+      EngineVersion: !Ref dbengineVersion
+      StorageType: !Ref storageType
+      OrderDBSecretArn: !ImportValue
+        Fn::Sub: "${Environment}-order-db-master-password-arn"
+      MasterUsername: !Ref dbMasterUsername
+      MasterUserPassword: {{resolve:secretsmanager:${OrderDBSecretArn}:SecretString:password}}
+      VPCSecurityGroups:
+        - !ImportValue
+          Fn::Sub: "${Environment}-rds-sg-id"
+      DBSubnetGroupName: !Ref SubnetGroup
+      MultiAZ: true
+      PubliclyAccessible: false
+      SkipFinalSnapshot: true
+      Tags:
+        - Key: Name
+          Value: !Sub "${Environment}-rds-instance-3"
+
+
+Outputs:
+  UserRDSInstanceEndpoint:
+    Description: Endpoint for user RDS instance
+    Value: !GetAtt UserRDSInstance.Endpoint.Address
+    Export:
+      Name: !Sub "${Environment}-user-rds-endpoint"
+
+  ProductRDSInstanceEndpoint:
+    Description: Endpoint for product RDS instance
+    Value: !GetAtt ProductRDSInstance.Endpoint.Address
+    Export:
+      Name: !Sub "${Environment}-product-rds-endpoint"
+
+  OrderRDSInstanceEndpoint:
+    Description: Endpoint for order RDS instance
+    Value: !GetAtt OrderRDSInstance.Endpoint.Address
+    Export:
+      Name: !Sub "${Environment}-order-rds-endpoint"
