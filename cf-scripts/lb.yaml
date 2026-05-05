@@ -1,0 +1,107 @@
+AWSTemplateFormatVersion: "2010-09-09"
+
+Description: Application Load Balancer stack for microservices project - Load balancer, target group and listener
+
+Parameters:
+  Environment:
+    Type: String
+    Default: dev
+    AllowedValues:
+      - staging
+      - dev
+      - prod
+    Description: Environment name used to tag and name all resources
+
+  Scheme:
+    Type: String
+    Default: internet-facing
+    AllowedValues:
+      - internet-facing
+      - internal
+    Description: Scheme for the load balancer (internet-facing or internal)
+
+  LoadBalancerType:
+    Type: String
+    Default: application
+    AllowedValues:
+      - application
+      - network
+    Description: Type of load balancer (application or network)
+
+  Protocol:
+    Type: String
+    Default: HTTP
+    AllowedValues:
+      - HTTP
+      - HTTPS
+    Description: Protocol for the target group (HTTP or HTTPS)
+
+  Port:
+    Type: Number
+    Default: 80
+    AllowedValues:
+      - 80
+      - 443
+    Description: Port for the target group to listen on
+
+
+Resources:
+  LoadBalancer:
+    Type: AWS::ElasticLoadBalancingV2::LoadBalancer
+    Properties:
+      Name: !Sub "${Environment}-app-lb"
+      Type: !Ref LoadBalancerType
+      Scheme: !Ref Scheme
+      Subnets:
+        - !ImportValue
+          Fn::Sub: "${Environment}-public-subnet-1-id"
+        - !ImportValue
+          Fn::Sub: "${Environment}-public-subnet-2-id"
+      SecurityGroups:
+        - !ImportValue
+          Fn::Sub: "${Environment}-lb-sg-id"
+      LoadBalancerAttributes:
+        - Key: "deletion_protection.enabled"
+          Value: "false"
+      Tags:
+        - Key: Environment
+          Value: !Ref Environment
+
+
+  TargetGroup:
+    Type: AWS::ElasticLoadBalancingV2::TargetGroup
+    Properties:
+      Name: !Sub "${Environment}-app-tg"
+      Protocol: !Ref Protocol
+      Port: !Ref Port
+      TargetType: ip
+      VpcId: !ImportValue
+        Fn::Sub: "${Environment}-vpc-id"
+      HealthCheckPath: /health
+      HealthCheckIntervalSeconds: 30 
+
+  LoadBalancerListener:
+    Type: AWS::ElasticLoadBalancingV2::Listener
+    Properties:
+      Name: !Sub "${Environment}-app-listener"
+      LoadBalancerArn: !Ref LoadBalancer
+      Protocol: !Ref Protocol
+      Port: !Ref Port
+      DefaultActions:
+        - Type: forward
+          TargetGroupArn: !Ref TargetGroup
+
+
+Outputs:
+  LoadBalancerDNSName:
+    Description: DNS name of the created load balancer
+    Value: !GetAtt LoadBalancer.DNSName
+    Export:
+      Name: !Sub "${Environment}-LoadBalancerDNSName"
+
+  TargetGroupARN:
+    Description: ARN of the created target group
+    Value: !Ref TargetGroup
+    Export:
+      Name: !Sub "${Environment}-TargetGroupARN"
+
