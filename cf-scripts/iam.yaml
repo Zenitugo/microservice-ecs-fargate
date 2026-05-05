@@ -1,0 +1,53 @@
+AWSTemplateFormatVersion: "2010-09-09"
+
+Description: IAM Instance Profile stack for microservices project - ECS task execution role
+
+Parameters:
+  Environment:
+    Type: String
+    Default: dev
+    AllowedValues:
+      - staging
+      - dev
+      - prod
+    Description: Environment name used to tag and name all resources
+
+Resources:
+  ECSTaskExecutionRole:
+    Type: AWS::IAM::Role
+    Properties:
+      RoleName: !Sub "${Environment}-ecs-task-execution-role"
+      AssumeRolePolicyDocument:
+        Version: "2012-10-17"
+        Statement: 
+          - Effect: Allow
+            Principal:
+              Service: 
+                - ecs-tasks.amazonaws.com
+            Action: 
+              - 'sts:AssumeRole'
+      ManagedPolicyArns:
+        - arn:aws:iam::aws:policy/service-role/AmazonECSTaskExecutionRolePolicy
+      Tags:
+        - Key: Environment
+          value: !Ref Environment
+
+
+  ECSExecutionSecrets:
+    Type: AWS::IAM::RolePolicy
+    Properties:
+      RoleName: !Ref ECSTaskExecutionRole
+      PolicyName: !Sub "${Environment}-ecs-task-execution-secrets-policy"
+      PolicyDocument:
+        Version: "2012-10-17"
+        Statement:
+          - Effect: Allow
+            Action:
+              - secretsmanager:GetSecretValue
+            Resource: 
+              - !ImportValue
+                Fn::Sub: "${Environment}-user-db-master-password-arn"
+              - !ImportValue
+                Fn::Sub: "${Environment}-order-db-master-password-arn"
+              - !ImportValue
+                Fn::Sub: "${Environment}-product-db-master-password-arn"
