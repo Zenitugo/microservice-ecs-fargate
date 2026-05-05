@@ -1,0 +1,99 @@
+AWSTemplateFormatVersion: "2010-09-09"
+
+Description: Security Group stack for microservices project - SG for load balancer, ECS tasks and RDS instance
+
+Parameters:
+  Environment:
+    Type: String
+    Default: dev
+    AllowedValues:
+      - staging
+      - dev
+      - prod
+    Description: Environment name used to tag and name all resources
+
+  loadBalancerPort:
+    Type: Number
+    Default: 80
+    Description: Port for load balancer to listen on
+
+  RDSPort:
+    Type: Number
+    Default: 5432
+    Description: Port for RDS instance to listen on
+
+  ECSTaskFromPort:
+    Type: Number
+    Default: 3001
+    Description: Port for ECS tasks to listen on
+
+  ECSTaskToPort:
+    Type: Number
+    Default: 3004
+    Description: Port for ECS tasks to listen on
+
+Resources:
+  LoadBalancerSG:
+    Type: AWS::EC2::SecurityGroup
+    Properties:
+      GroupDescription: Security group for load balancer
+      VpcId: !ImportValue
+        Fn::Sub: "${Environment}-vpc-id"
+      SecurityGroupIngress:
+        - IpProtocol: tcp
+          FromPort: !Ref loadBalancerPort
+          ToPort: !Ref loadBalancerPort 
+          CidrIp: 0.0.0.0/0
+      Tags:
+        - Key: Name
+          Value: !Sub "${Environment}-lb-sg"
+
+  ECSTaskSG:
+    Type: AWS::EC2::SecurityGroup
+    Properties:
+      GroupDescription: Security group for ECS tasks
+      VpcId: !ImportValue
+        Fn::Sub: "${Environment}-vpc-id"
+      SecurityGroupIngress:
+        - IpProtocol: tcp
+          FromPort: !Ref ECSTaskFromPort
+          ToPort: !Ref ECSTaskToPort
+          SourceSecurityGroupId: !Ref LoadBalancerSG
+      Tags:
+        - Key: Name
+          Value: !Sub "${Environment}-ecs-sg"
+
+  RDSSG:
+    Type: AWS::EC2::SecurityGroup
+    Properties:
+      GroupDescription: Security group for RDS instance
+      VpcId: !ImportValue
+        Fn::Sub: "${Environment}-vpc-id"
+      SecurityGroupIngress:
+        - IpProtocol: tcp
+          FromPort: !Ref RDSPort
+          ToPort: !Ref RDSPort
+          SourceSecurityGroupId: !Ref ECSTaskSG
+      Tags:
+        - Key: Name
+          Value: !Sub "${Environment}-rds-sg"
+
+
+Outputs:
+  LoadBalancerSGId:
+    Description: Security group ID for load balancer
+    Value: !Ref LoadBalancerSG
+    Export:
+      Name: !Sub "${Environment}-lb-sg-id"
+
+  ECSTaskSGId:
+    Description: Security group ID for ECS tasks
+    Value: !Ref ECSTaskSG
+    Export:
+      Name: !Sub "${Environment}-ecs-sg-id"
+
+  RDSSGId:
+    Description: Security group ID for RDS instance
+    Value: !Ref RDSSG
+    Export:
+      Name: !Sub "${Environment}-rds-sg-id"
