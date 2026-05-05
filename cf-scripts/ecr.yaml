@@ -1,0 +1,90 @@
+AWSTemplateFormatVersion: "2010-09-09"
+
+Description: ECR stack for microservices project
+
+Parameters:
+  Environment:
+    Type: String
+    Default: dev
+    AllowedValues:
+      - staging
+      - dev
+      - prod
+    Description: Environment name used to tag and name all resources
+
+  RepositoryName1:
+    Type: String
+    Default: user-service-repo
+    Description: Name of the ECR repository to create
+
+  RepositoryName2:
+    Type: String
+    Default: order-service-repo
+    Description: Name of the ECR repository to create
+
+  RepositoryName3:
+    Type: String
+    Default: notification-service-repo
+    Description: Name of the ECR repository to create
+
+  RepositoryName4:
+    Type: String
+    Default: product-service-repo
+    Description: Name of the ECR repository to create
+
+
+
+
+Resources:
+  UserRepository:
+    Type: AWS::ECR::Repository
+    Properties:
+      RepositoryName: !Ref RepositoryName1
+      Tags:
+        - Key: Name
+          Value: !Sub "${Environment}-user-service-repo"
+
+  OrderRepository:
+    Type: AWS::ECR::Repository
+    Properties:
+      RepositoryName: !Ref RepositoryName2
+      Tags:
+        - Key: Name
+          Value: !Sub "${Environment}-order-service-repo"
+
+  ProductRepository:
+    Type: AWS::ECR::Repository
+    Properties:
+      RepositoryName: !Ref RepositoryName4
+      Tags:
+        - Key: Name
+          Value: !Sub "${Environment}-product-service-repo"
+
+  NotificationRepository:
+    Type: AWS::ECR::Repository
+    Properties:
+      RepositoryName: !Ref RepositoryName3
+      Tags:
+        - Key: Name
+          Value: !Sub "${Environment}-notification-service-repo"
+
+Outputs:
+  UserRepositoryUri:
+    Value: !GetAtt UserRepository.RepositoryUri
+    Export:
+      Name: !Sub "${Environment}-user-repo-uri"
+
+  OrderRepositoryUri:
+    Value: !GetAtt OrderRepository.RepositoryUri
+    Export:
+      Name: !Sub "${Environment}-order-repo-uri"
+
+  ProductRepositoryUri:
+    Value: !GetAtt ProductRepository.RepositoryUri
+    Export:
+      Name: !Sub "${Environment}-product-repo-uri"
+
+  NotificationRepositoryUri:
+    Value: !GetAtt NotificationRepository.RepositoryUri
+    Export:
+      Name: !Sub "${Environment}-notification-repo-uri"
