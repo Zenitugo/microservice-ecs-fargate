@@ -1,0 +1,50 @@
+AWSTemplateFormatVersion: "2010-09-09"
+
+Description: Messaging Queue stack for microservices project
+
+Parameters:
+  Environment:
+    Type: String
+    Default: dev
+    AllowedValues:
+      - staging
+      - dev
+      - prod
+    Description: Environment name used to tag and name all resources
+
+  timeout:
+    Type: Number
+    Default: 30
+    Description: Visibility timeout for the SQS queue in seconds
+
+  retention:
+    Type: Number
+    Default: 180
+    Description: Message retention period for the SQS queue in seconds
+
+
+Resources:
+  SQSQueue:
+    Type: AWS::SQS::Queue
+    Properties:
+      QueueName: !Sub "${Environment}-notification-queue"
+      VisibilityTimeout: !Ref timeout
+      MessageRetentionPeriod: !Ref retention
+      Tags:
+        - Key: Environment
+          Value: !Ref Environment
+
+
+  OrdersQueue:
+    Type: AWS::SQS::Queue
+    Properties:
+      QueueName: !Sub "${Environment}-orders-queue"
+      SqsManagedSseEnabled: true
+
+      
+Outputs:
+  SQSQueueURL:
+    Description: URL of the created SQS queue
+    Value: !Ref SQSQueue
+    Export:
+      Name: !Sub "${Environment}-SQSQueueURL"
