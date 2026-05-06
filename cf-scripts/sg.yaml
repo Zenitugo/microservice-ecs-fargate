@@ -119,7 +119,12 @@ Resources:
         - IpProtocol: tcp
           FromPort: !Ref RDSPort
           ToPort: !Ref RDSPort
-          SourceSecurityGroupId: !Ref ECSTaskSG
+          SourceSecurityGroupId: !Ref UserServiceSG
+        - IpProtocol: tcp
+          FromPort: !Ref RDSPort
+          ToPort: !Ref RDSPort
+          SourceSecurityGroupId: !Red ProductService
+       
       Tags:
         - Key: Name
           Value: !Sub "${Environment}-rds-sg"
