@@ -81,9 +81,36 @@ Resources:
         - Key: Environment
           value: !Ref Environment
 
+  OrderTaskRole:
+    Type: AWS::IAM::Role
+    Properties:
+      RoleName: !Sub "${Environment}-order-task-role"
+      AssumeRolePolicyDocument:
+        Version: "2012-10-17"
+        Statement: 
+          - Effect: Allow
+            Principal:
+              Service: 
+                - ecs-tasks.amazonaws.com
+            Action: 
+              - 'sts:AssumeRole'
+    Policies:
+      - PolicyName: !Sub "${Environment}-order-task-sqs-policy"
+        PolicyDocument:
+          Version: "2012-10-17"
+          Statement:
+            - Effect: Allow
+              Action:
+                - sqs:SendMessage
+                - sqs:GetQueueAttributes
+              Resource: !GetAtt OrderQueue.Arn
+      Tags:
+        - Key: Environment
+          value: !Ref Environment
+
 
 Outputs:
   ECSTaskExceutionRole:
     Value: !Ref ECSTaskExecutionRole
     Export:
-      Name: !Sub "${Environment}-ecs-task-execution-role" 
+      Name: !Sub "${Environment}-ecs-task-execution-ro
