@@ -51,3 +51,10 @@ Resources:
                 Fn::Sub: "${Environment}-order-db-master-password-arn"
               - !ImportValue
                 Fn::Sub: "${Environment}-product-db-master-password-arn"
+
+
+Outputs:
+  ECSTaskExceutionRole:
+    Value: !Ref ECSTaskExecutionRole
+    Export:
+      Name: !Sub "${Environment}-ecs-task-execution-role" 
