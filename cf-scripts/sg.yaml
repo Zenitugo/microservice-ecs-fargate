@@ -22,15 +22,23 @@ Parameters:
     Default: 5432
     Description: Port for RDS instance to listen on
 
-  ECSTaskFromPort:
+  UserServicePort:
     Type: Number
     Default: 3001
-    Description: Port for ECS tasks to listen on
+    Description: Port for user service to listen on
 
-  ECSTaskToPort:
+  ProductServicePort:
     Type: Number
-    Default: 3004
-    Description: Port for ECS tasks to listen on
+    Default: 3002
+    Description: Port for product service to listen on
+
+  OrderServicePort:
+    Type: Number
+    Default: 3003
+    Description: Port for order service to listen on
+ 
+ 
+
 
 Resources:
   LoadBalancerSG:
@@ -48,7 +56,7 @@ Resources:
         - Key: Name
           Value: !Sub "${Environment}-lb-sg"
 
-  ECSTaskSG:
+  UserServiceSG:
     Type: AWS::EC2::SecurityGroup
     Properties:
       GroupDescription: Security group for ECS tasks
@@ -56,12 +64,50 @@ Resources:
         Fn::Sub: "${Environment}-vpc-id"
       SecurityGroupIngress:
         - IpProtocol: tcp
-          FromPort: !Ref ECSTaskFromPort
-          ToPort: !Ref ECSTaskToPort
+          FromPort: !Ref UserServicePort
+          ToPort: !Ref UserServicePort
           SourceSecurityGroupId: !Ref LoadBalancerSG
       Tags:
         - Key: Name
           Value: !Sub "${Environment}-ecs-sg"
+
+  ProductServiceSG:
+    Type: AWS::EC2::SecurityGroup
+    Properties:
+      GroupDescription: Security group for ECS tasks
+      VpcId: !ImportValue
+        Fn::Sub: "${Environment}-vpc-id"
+      SecurityGroupIngress:
+        - IpProtocol: tcp
+          FromPort: !Ref ProductServicePort
+          ToPort: !Ref ProductServicePort
+          SourceSecurityGroupId: !Ref LoadBalancerSG
+      Tags:
+        - Key: Name
+          Value: !Sub "${Environment}-ecs-sg"
+
+  OrderServiceSG:
+    Type: AWS::EC2::SecurityGroup
+    Properties:
+      GroupDescription: Security group for ECS tasks
+      VpcId: !ImportValue
+        Fn::Sub: "${Environment}-vpc-id"
+      SecurityGroupIngress:
+        - IpProtocol: tcp
+          FromPort: !Ref OrderServicePort
+          ToPort: !Ref OrderServicePort
+          SourceSecurityGroupId: !Ref LoadBalancerSG
+      Tags:
+        - Key: Name
+          Value: !Sub "${Environment}-ecs-sg"
+
+  NotificationServiceSG:
+    Type: AWS::EC2::SecurityGroup
+    Properties:
+      GroupDescription: Security group for ECS tasks 
+      VpcId: !ImportValue
+        Fn::Sub: "${Environment}-vpc-id"
+      #No inbound rules needed for notification service as it only consumes from SQS and does not receive traffic from load balancer
 
   RDSSG:
     Type: AWS::EC2::SecurityGroup
