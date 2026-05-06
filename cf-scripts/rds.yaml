@@ -85,10 +85,11 @@ Resources:
       Engine: !Ref dbengine
       EngineVersion: !Ref dbengineVersion
       StorageType: !Ref storageType
-      UserDBSecretArn: !ImportValue
-        Fn::Sub: "${Environment}-user-db-master-password-arn"
       MasterUsername: !Ref dbMasterUsername
-      MasterUserDBMasterPassword: {{resolve:secretsmanager:${UserDBSecretArn}:SecretString:password}}
+      MasterUserDBMasterPassword: !Sub
+        - "{{resolve:secretsmanager:${SecretArn}:SecretString:password}}"
+        - SecretArn: !ImportValue
+            Fn::Sub: "${Environment}-user-db-master-password-arn"
       VPCSecurityGroups:
         - !ImportValue
           Fn::Sub: "${Environment}-rds-sg-id"
@@ -112,10 +113,11 @@ Resources:
       Engine: !Ref dbengine
       EngineVersion: !Ref dbengineVersion
       StorageType: !Ref storageType
-      ProductDBSecretArn: !ImportValue
-        Fn::Sub: "${Environment}-product-db-master-password-arn"
       MasterUsername: !Ref dbMasterUsername
-      MasterUserPassword: {{resolve:secretsmanager:${ProductDBSecretArn}:SecretString:password}}
+      MasterUserPassword: !Sub
+        - "{{resolve:secretsmanager:${SecretArn}:SecretString:password}}"
+        - SecretArn: !ImportValue
+            Fn::Sub: "${Environment}-product-db-master-password-arn"
       VPCSecurityGroups:
         - !ImportValue
           Fn::Sub: "${Environment}-rds-sg-id"
@@ -138,10 +140,11 @@ Resources:
       Engine: !Ref dbengine
       EngineVersion: !Ref dbengineVersion
       StorageType: !Ref storageType
-      OrderDBSecretArn: !ImportValue
-        Fn::Sub: "${Environment}-order-db-master-password-arn"
       MasterUsername: !Ref dbMasterUsername
-      MasterUserPassword: {{resolve:secretsmanager:${OrderDBSecretArn}:SecretString:password}}
+      MasterUserPassword: !Sub
+        - "{{resolve:secretsmanager:${SecretArn}:SecretString:password}}"
+        - SecretArn: !ImportValue
+            Fn::Sub: "${Environment}-order-db-master-password-arn"  
       VPCSecurityGroups:
         - !ImportValue
           Fn::Sub: "${Environment}-rds-sg-id"
