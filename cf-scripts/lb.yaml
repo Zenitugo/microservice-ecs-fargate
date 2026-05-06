@@ -67,19 +67,6 @@ Resources:
         - Key: Environment
           Value: !Ref Environment
 
-
-  TargetGroup:
-    Type: AWS::ElasticLoadBalancingV2::TargetGroup
-    Properties:
-      Name: !Sub "${Environment}-app-tg"
-      Protocol: !Ref Protocol
-      Port: !Ref Port
-      TargetType: ip
-      VpcId: !ImportValue
-        Fn::Sub: "${Environment}-vpc-id"
-      HealthCheckPath: /health
-      HealthCheckIntervalSeconds: 30 
-
   LoadBalancerListener:
     Type: AWS::ElasticLoadBalancingV2::Listener
     Properties:
@@ -88,8 +75,38 @@ Resources:
       Protocol: !Ref Protocol
       Port: !Ref Port
       DefaultActions:
+        - Type: fixed-response
+          FixedResponseConfig:
+            StatusCode: "404"
+            MessageBody: "Not Found"
+
+  UserServiceTargetGroup:
+    Type: AWS::ElasticLoadBalancingV2::TargetGroup
+    Properties:
+      Name: !Sub "${Environment}-user-app-tg"
+      Protocol: !Ref Protocol
+      Port: !Ref Port
+      TargetType: ip
+      VpcId: !ImportValue
+        Fn::Sub: "${Environment}-vpc-id"
+      HealthCheckPath: /users/health
+      HealthCheckIntervalSeconds: 30 
+
+  UserServiceListenerRule:
+    Type: AWS::ElasticLoadBalancingV2::ListenerRule
+    Properties:
+      ListenerArn: !Ref LoadBalancerListener
+      Priority: 1
+      Conditions:
+        - Field: path-pattern
+          Values:
+            - /users/*
+      Actions:
         - Type: forward
-          TargetGroupArn: !Ref TargetGroup
+          TargetGroupArn: !Ref UserServiceTargetGroup
+
+
+
 
 
 Outputs:
