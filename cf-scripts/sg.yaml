@@ -124,6 +124,10 @@ Resources:
           FromPort: !Ref RDSPort
           ToPort: !Ref RDSPort
           SourceSecurityGroupId: !Red ProductService
+        - IpProtocol: tcp
+          FromPort: !Ref RDSPort
+          ToPort: !Ref RDSPort
+          SourceSecurityGroupId: !Ref OrderServiceSG
        
       Tags:
         - Key: Name
