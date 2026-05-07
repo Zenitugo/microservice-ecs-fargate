@@ -32,26 +32,6 @@ Resources:
         - Key: Environment
           value: !Ref Environment
 
-
-  ECSExecutionSecrets:
-    Type: AWS::IAM::RolePolicy
-    Properties:
-      RoleName: !Ref ECSTaskExecutionRole
-      PolicyName: !Sub "${Environment}-ecs-task-execution-secrets-policy"
-      PolicyDocument:
-        Version: "2012-10-17"
-        Statement:
-          - Effect: Allow
-            Action:
-              - secretsmanager:GetSecretValue
-            Resource: 
-              - !ImportValue
-                Fn::Sub: "${Environment}-user-db-master-password-arn"
-              - !ImportValue
-                Fn::Sub: "${Environment}-order-db-master-password-arn"
-              - !ImportValue
-                Fn::Sub: "${Environment}-product-db-master-password-arn"
-
   
   NotificationTaskRole:
     Type: AWS::IAM::Role
@@ -81,7 +61,7 @@ Resources:
         - Key: Environment
           value: !Ref Environment
 
-  OrderTaskRole:
+  OrderTaskRole: 
     Type: AWS::IAM::Role
     Properties:
       RoleName: !Sub "${Environment}-order-task-role"
@@ -95,7 +75,7 @@ Resources:
             Action: 
               - 'sts:AssumeRole'
     Policies:
-      - PolicyName: !Sub "${Environment}-order-task-sqs-policy"
+      - PolicyName: !Sub "${Environment}-order-task-service-policy"
         PolicyDocument:
           Version: "2012-10-17"
           Statement:
@@ -104,9 +84,95 @@ Resources:
                 - sqs:SendMessage
                 - sqs:GetQueueAttributes
               Resource: !GetAtt OrderQueue.Arn
-      Tags:
-        - Key: Environment
-          value: !Ref Environment
+            - Effect: Allow
+              Action:
+                - secretsmanager:GetSecretValue
+              Resource:
+                - !ImportValue
+                  Fn::Sub: "${Environment}-order-db-master-password-arn"
+                
+        Tags:
+          - Key: Environment
+            value: !Ref Environment
+
+  ProductServiceTaskRole:
+    Type: AWS::IAM:Role
+    Properties:
+      RoleName: !Sub "${Environment}-product-task-role"
+      AssumeRolePolicyDocument:
+        Version: "2012-10-17"
+        Statement: 
+          - Effect: Allow
+            Principal:
+              Service: 
+                - ecs-tasks.amazonaws.com
+            Action: 
+              - 'sts:AssumeRole'
+    Policies:
+      - PolicyName: !Sub "${Environment}-product-task-sqs-policy"
+        PolicyDocument:
+          Version: "2012-10-17"
+          Statement:
+            - Effect: Allow
+              Action:
+                - secretsmanager:GetSecretValue
+              Resource:
+                - !ImportValue
+                  Fn::Sub: "${Environment}-product-db-master-password-arn"
+
+        Tags:
+          - Key: Environment
+            value: !Ref Environment 
+
+ 
+  UserServiceTaskRole:
+    Type: AWS::IAM::Role
+    Properties:
+      RoleName: !Sub "${Environment}-user-task-role"
+      AssumeRolePolicyDocument:
+        Version: "2012-10-17"
+        Statement: 
+          - Effect: Allow
+            Principal:
+              Service: 
+                - ecs-tasks.amazonaws.com
+            Action: 
+              - 'sts:AssumeRole'
+    Policies:
+      - PolicyName: !Sub "${Environment}-user-task-service-policy"
+        PolicyDocument:
+          Version: "2012-10-17"
+          Statement:
+            - Effect: Allow
+              Action:
+                - secretsmanager:GetSecretValue
+              Resource:
+                - !ImportValue
+                  Fn::Sub: "${Environment}-user-db-master-password-arn"
+
+        Tags:
+          - Key: Environment
+            value: !Ref Environment
+
+  ECSExecutionSecrets:
+    Type: AWS::IAM::RolePolicy
+    Properties:
+      RoleName: !Ref ECSTaskExecutionRole
+      PolicyName: !Sub "${Environment}-ecs-task-execution-secrets-policy"
+      PolicyDocument:
+        Version: "2012-10-17"
+        Statement:
+          - Effect: Allow
+            Action:
+              - secretsmanager:GetSecretValue
+            Resource: 
+              - !ImportValue
+                Fn::Sub: "${Environment}-user-db-master-password-arn"
+              - !ImportValue
+                Fn::Sub: "${Environment}-order-db-master-password-arn"
+              - !ImportValue
+                Fn::Sub: "${Environment}-product-db-master-password-arn"
+
 
 
 Outputs:
