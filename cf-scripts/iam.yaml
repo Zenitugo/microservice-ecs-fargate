@@ -179,4 +179,24 @@ Outputs:
   ECSTaskExceutionRole:
     Value: !Ref ECSTaskExecutionRole
     Export:
-      Name: !Sub "${Environment}-ecs-task-execution-ro
+      Name: !Sub "${Environment}-ecs-task-execution-role"
+  
+  NotificationTaskRole:
+    Value: !Ref NotificationTaskRole
+    Export:
+      Name: !Sub "${Environment}-notification-task-role"
+  UserTaskRole:
+    Value: !Ref UserServiceTaskRole
+    Export:
+      Name: !Sub "${Environment}-user-task-role"
+
+  ProductTaskRole:
+    Value: !Ref ProductServiceTaskRole
+    Export:
+      Name: !Sub "${Environment}-product-task-role"
+
+  OrderTaskRole:
+    Value: !Ref OrderTaskRole
+    Export:
+      Name: !Sub "${Environment}-order-task-role"
+
