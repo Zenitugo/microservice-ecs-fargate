@@ -19,6 +19,23 @@ Parameters:
 
 Resources:
 
+
+# MONITORING - Is something wrong (SNS Topic for alerts)
+
+
+  # SNS Topic - the notification channel for all alarms
+  # When an alarm fires it sends an email to this topic
+  AlertTopic:
+    Type: AWS::SNS::Topic
+    Properties:
+      TopicName: !Sub "${Environment}-microservices-alerts"
+      Subscription:
+        - Protocol: email
+          Endpoint: !Ref AlertEmail
+      Tags:
+        - Key: Environment
+          Value: !Ref Environment
+
  # ----- USER  SERVICE ALARMS -----
 
   # Alert when User Service CPU is too high
