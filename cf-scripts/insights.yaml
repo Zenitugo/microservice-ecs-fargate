@@ -1,0 +1,31 @@
+AWSTemplateFormatVersion: "2010-09-09"
+
+Description: Insights stack for microservices project - Container Insights 
+
+Parameters:
+  Environment:
+    Type: String
+    Default: staging
+    AllowedValues:
+      - dev
+      - staging
+      - prod
+    Description: Environment name used to tag and name all resources
+
+
+
+Resources:
+  # CONTAINER INSIGHTS - Deep container level metrics
+# ============================================================
+
+  # Enables Container Insights on your ECS Cluster
+  # This gives you per-service CPU, memory, network metrics
+
+  ContainerInsightsParameter:
+    Type: AWS::SSM::Parameter
+    Properties:
+      Name: !Sub "/ecs/${Environment}/container-insights"
+      Type: String
+      Value: enabled
+      Description: Enables Container Insights for ECS cluster observability
+
