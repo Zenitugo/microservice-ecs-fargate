@@ -1,0 +1,299 @@
+AWSTemplateFormatVersion: "2010-09-09"
+
+Description: ECS stack for microservices project - Cluster, ECS task definition and service
+
+Parameters:
+  Environment:
+    Type: String
+    Default: dev
+    AllowedValues:
+      - staging
+      - dev
+      - prod
+    Description: Environment name used to tag and name all resources
+
+  ClusterName:
+    Type: String
+    Default: microservices-cluster
+    Description: Name of the ECS cluster
+
+  Region:
+    Type: String
+    Default: eu-central-1
+    Description: AWS region for the resources
+  
+
+
+Resources:
+  ECSCluster:
+    Type: AWS::ECS::Cluster
+    Properties:
+      ClusterName: !Ref ClusterName
+
+  UserEcsTaskDefinition:
+    Type: AWS::ECS::TaskDefinition
+    Properties:
+      Family: !Sub "${Environment}-user-task"
+      Cpu: "256"
+      Memory: "512"
+      NetworkMode: awsvpc
+      RequiresCompatibilities:
+        - FARGATE
+      ExecutionRoleArn: !ImportValue
+        Fn::Sub: "${Environment}-ecs-task-execution-role"
+      TaskRoleArn: !ImportValue
+        Fn::Sub: "${Environment}-user-task-role"
+      ContainerDefinitions:
+        - Name: user-service-container
+          Image: !ImportValue
+            Fn::Sub: "${Environment}-user-repo-uri:latest"
+          Essential: false
+          PortMappings:
+            - ContainerPort: 3001
+              HostPort: 3001
+              Protocol: tcp
+          Environment:
+            - Name: USER_DB_SECRET_ARN
+              Value: !ImportValue
+                Fn::Sub: "${Environment}-user-db-master-password-arn"
+            - Name: AWS_REGION
+              Value: !Ref Region
+            - DB_HOST:
+              Value: !ImportValue
+                Fn::Sub: "${Environment}-user-rds-endpoint"
+          LogConfiguration:
+            LogDriver: awslogs
+            Options:
+              awslogs-group: !Sub "/${Environment}/user-service-logs"
+              awslogs-region: !Ref Region
+              awslogs-stream-prefix: user
+
+
+  UserEcsService:
+    Type: AWS::ECS::Service
+    Properties:
+      Cluster: !Ref ECSCluster
+      ServiceName: !Sub "${Environment}-user-service"
+      TaskDefinition: !Ref UserEcsTaskDefinition
+      DesiredCount: 1
+      LaunchType: FARGATE
+      NetworkConfiguration:
+        AwsvpcConfiguration:
+          AssignPublicIp: DISABLED
+          Subnets:
+            - !ImportValue
+              Fn::Sub: "${Environment}-private-subnet-1-id"
+            - !ImportValue
+              Fn::Sub: "${Environment}-private-subnet-2-id"
+          SecurityGroups:
+            - !ImportValue
+              Fn::Sub: "${Environment}-user-sg-id"    
+      LoadBalancers:
+        - TargetGroupArn: !ImportValue
+            Fn::Sub: "${Environment}-UserServiceTargetGroupARN"
+
+
+  
+  ProductEcsTaskDefinition:
+    Type: AWS::ECS::TaskDefinition
+    Properties:
+      Family: !Sub "${Environment}-product-task"
+      Cpu: "256"
+      Memory: "512"
+      NetworkMode: awsvpc
+      RequiresCompatibilities:
+        - FARGATE
+      ExecutionRoleArn: !ImportValue
+        Fn::Sub: "${Environment}-ecs-task-execution-role"
+      TaskRoleArn: !ImportValue
+        Fn::Sub: "${Environment}-product-task-role"
+      ContainerDefinitions:
+        - Name: product-service-container
+          Image: !ImportValue
+            Fn::Sub: "${Environment}-product-repo-uri:latest"
+          Essential: false
+          PortMappings:
+            - ContainerPort: 3002
+              HostPort: 3002
+              Protocol: tcp
+          Environment:
+            - Name: PRODUCT_DB_SECRET_ARN
+              Value: !ImportValue
+                Fn::Sub: "${Environment}-product-db-master-password-arn"
+            - Name: AWS_REGION
+              Value: !Ref Region
+            - DB_HOST:
+              Value: !ImportValue
+                Fn::Sub: "${Environment}-product-rds-endpoint"            
+          LogConfiguration:
+            LogDriver: awslogs
+            Options:
+              awslogs-group: !Sub "/${Environment}/product-service-logs"
+              awslogs-region: !Ref Region
+              awslogs-stream-prefix: product
+
+  ProductEcsService:
+    Type: AWS::ECS::Service
+    Properties:
+      Cluster: !Ref ECSCluster
+      ServiceName: !Sub "${Environment}-product-service"
+      TaskDefinition: !Ref ProductEcsTaskDefinition
+      DesiredCount: 1
+      LaunchType: FARGATE
+      NetworkConfiguration:
+        AwsvpcConfiguration:
+          AssignPublicIp: DISABLED
+          Subnets:
+            - !ImportValue
+              Fn::Sub: "${Environment}-private-subnet-1-id"
+            - !ImportValue
+              Fn::Sub: "${Environment}-private-subnet-2-id"
+          SecurityGroups:
+            - !ImportValue
+              Fn::Sub: "${Environment}-product-sg-id"    
+      LoadBalancers:
+        - TargetGroupArn: !ImportValue
+            Fn::Sub: "${Environment}-ProductServiceTargetGroupARN"
+
+
+  OrderEcsTaskDefinition:
+    Type: AWS::ECS::TaskDefinition
+    Properties:
+      Family: !Sub "${Environment}-order-task"
+      Cpu: "256"
+      Memory: "512"
+      NetworkMode: awsvpc
+      RequiresCompatibilities:
+        - FARGATE
+      ExecutionRoleArn: !ImportValue
+        Fn::Sub: "${Environment}-ecs-task-execution-role"
+      TaskRoleArn: !ImportValue
+        Fn::Sub: "${Environment}-order-task-role"
+      ContainerDefinitions:
+        - Name: order-service-container
+          Image: !ImportValue
+            Fn::Sub: "${Environment}-order-repo-uri:latest"
+          Essential: false
+          PortMappings:
+            - ContainerPort: 3003
+              HostPort: 3003
+              Protocol: tcp
+          Environment:
+            - Name: ORDER_DB_SECRET_ARN
+              Value: !ImportValue
+                Fn::Sub: "${Environment}-order-db-master-password-arn"
+            - Name: AWS_REGION
+              Value: !Ref Region 
+            - DB_HOST: 
+              Value: !ImportValue
+                Fn::Sub: "${Environment}-order-rds-endpoint" 
+          LogConfiguration:
+            LogDriver: awslogs
+            Options:
+              awslogs-group: !Sub "/${Environment}/order-service-logs"
+              awslogs-region: !Ref Region
+              awslogs-stream-prefix: order
+
+  OrderEcsService:
+    Type: AWS::ECS::Service
+    Properties:
+      Cluster: !Ref ECSCluster  
+      ServiceName: !Sub "${Environment}-order-service"
+      TaskDefinition: !Ref OrderEcsTaskDefinition
+      DesiredCount: 1
+      LaunchType: FARGATE
+      NetworkConfiguration:
+        AwsvpcConfiguration:
+          AssignPublicIp: DISABLED
+          Subnets:
+            - !ImportValue
+              Fn::Sub: "${Environment}-private-subnet-1-id"
+            - !ImportValue
+              Fn::Sub: "${Environment}-private-subnet-2-id"
+          SecurityGroups:
+            - !ImportValue
+              Fn::Sub: "${Environment}-order-sg-id"    
+      LoadBalancers:
+        - TargetGroupArn: !ImportValue
+            Fn::Sub: "${Environment}-OrderServiceTargetGroupARN"
+
+
+
+  NotificationEcsTaskDefinition:
+    Type: AWS::ECS::TaskDefinition
+    Properties:
+      Family: !Sub "${Environment}-notification-task"
+      Cpu: "256"
+      Memory: "512"
+      NetworkMode: awsvpc
+      RequiresCompatibilities:
+        - FARGATE
+      ExecutionRoleArn: !ImportValue
+        Fn::Sub: "${Environment}-ecs-task-execution-role"
+      TaskRoleArn: !ImportValue
+        Fn::Sub: "${Environment}-notification-task-role"
+      ContainerDefinitions:
+        - Name: notification-service-container
+          Image: !ImportValue
+            Fn::Sub: "${Environment}-notification-repo-uri:latest"
+          PortMappings:
+            - ContainerPort: 3004
+              HostPort: 3004
+              Protocol: tcp
+          LogConfiguration:
+            LogDriver: awslogs
+            Options:
+              awslogs-group: !Sub "/${Environment}/notification-service-logs"
+              awslogs-region: !Ref Region
+              awslogs-stream-prefix: notification
+
+  NotificationEcsService:
+    Type: AWS::ECS::Service
+    Properties:
+      Cluster: !Ref ECSCluster 
+      TaskDefinition: !Ref NotificationEcsTaskDefinition
+      DesiredCount: 1
+      LaunchType: FARGATE
+      NetworkConfiguration:          
+        AwsvpcConfiguration:
+          AssignPublicIp: DISABLED
+          Subnets:
+            - !ImportValue
+              Fn::Sub: "${Environment}-private-subnet-1-id"
+            - !ImportValue
+              Fn::Sub: "${Environment}-private-subnet-2-id"
+          SecurityGroups:
+            - !ImportValue
+              Fn::Sub: "${Environment}-notification-sg-id"
+
+
+Outputs:
+  ClusterName:
+    Description: Name of the ECS cluster
+    Value: !Ref ECSCluster
+    Export:
+      Name: !Sub "${Environment}-cluster-name"
+
+  UserEcsServiceName:
+    Description: Name of the User ECS service
+    Value: !Ref UserEcsService
+    Export:
+      Name: !Sub "${Environment}-user-service"
+
+  ProductEcsServiceName:
+    Description: Name of the Product ECS service
+    Value: !Ref ProductEcsService   
+    Export:
+      Name: !Sub "${Environment}-product-service"
+
+  OrderEcsServiceName:
+    Description: Name of the Order ECS service 
+    Value: !Ref OrderEcsService
+    Export:
+      Name: !Sub "${Environment}-order-service"
+
+  NotificationEcsServiceName:
+    Description: Name of the Notification ECS service
+    Value: !Ref NotificationEcsService 
+    Export:
+      Name: !Sub "${Environment}-notification-service"
