@@ -317,3 +317,53 @@ Resources:
         - !Ref AlertTopic
       OKActions:
         - !Ref AlertTopic
+
+
+
+  # ----- SQS ALARMS -----
+  # This is critical - if messages pile up in the queue
+  # it means Notification Service is not consuming fast enough
+
+  SQSQueueDepthAlarm:
+    Type: AWS::CloudWatch::Alarm
+    Properties:
+      AlarmName: !Sub "${Environment}-order-queue-depth-high"
+      AlarmDescription: "Too many messages in Order Queue - Notification Service may be struggling"
+      Namespace: AWS/SQS
+      MetricName: ApproximateNumberOfMessagesVisible
+      Dimensions:
+        - Name: QueueName
+          Value: !ImportValue
+            Fn::Sub: "${Environment}-OrdersQueueName"
+      Statistic: Sum
+      Period: 300
+      EvaluationPeriods: 2
+      Threshold: 50        # alert if more than 50 unprocessed messages
+      ComparisonOperator: GreaterThanThreshold
+      AlarmActions:
+        - !Ref AlertTopic
+      OKActions:
+        - !Ref AlertTopic
+
+  # Alert when messages land in Dead Letter Queue
+  # This means order processing failed 3 times - needs immediate attention
+  SQSDLQAlarm:
+    Type: AWS::CloudWatch::Alarm
+    Properties:
+      AlarmName: !Sub "${Environment}-order-dlq-messages"
+      AlarmDescription: "Messages in Dead Letter Queue - orders are failing to process!"
+      Namespace: AWS/SQS
+      MetricName: ApproximateNumberOfMessagesVisible
+      Dimensions:
+        - Name: QueueName
+          Value: !ImportValue
+            Fn::Sub: "${Environment}-OrdersDeadLetterQueueName"
+      Statistic: Sum
+      Period: 60           # check every minute - this is critical
+      EvaluationPeriods: 1 # alarm immediately on first breach
+      Threshold: 1         # even one failed message should alert you
+      ComparisonOperator: GreaterThanOrEqualToThreshold
+      AlarmActions:
+        - !Ref AlertTopic
+      OKActions:
+        - !Ref AlertTopic
