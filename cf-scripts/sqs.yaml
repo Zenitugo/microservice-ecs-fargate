@@ -35,11 +35,22 @@ Resources:
           Value: !Ref Environment
 
 
+  OrdersDeadLetterQueue:
+    Type: AWS::SQS::Queue
+    Properties:
+      QueueName: !Sub "${Environment}-orders-dead-letter-queue"
+      MessageRetentionPeriod: 180 # 3 minutes in seconds
+
+
   OrdersQueue:
     Type: AWS::SQS::Queue
     Properties:
       QueueName: !Sub "${Environment}-orders-queue"
       SqsManagedSseEnabled: true
+      RedrivePolicy:
+        deadLetterTargetArn: !GetAtt OrdersDeadLetterQueue.Arn
+        maxReceiveCount: 5
+
 
       
 Outputs:
@@ -48,3 +59,15 @@ Outputs:
     Value: !Ref SQSQueue
     Export:
       Name: !Sub "${Environment}-SQSQueueURL"
+
+  OrdersQueueName:
+    Description: Name of the orders SQS queue
+    Value: !Ref OrdersQueue
+    Export:
+      Name: !Sub "${Environment}-OrdersQueueName"
+
+  OrdersDeadLetterQueueName:
+    Description: Name of the orders dead letter SQS queue 
+    Value: !Ref OrdersDeadLetterQueue
+    Export:
+      Name: !Sub "${Environment}-OrdersDeadLetterQueueName"
