@@ -1,0 +1,319 @@
+AWSTemplateFormatVersion: "2010-09-09"
+
+Description: Observability stack for microservices project - CloudWatch Logs, Metrics, Alarms, Container Insights and X-Ray
+
+Parameters:
+  Environment:
+    Type: String
+    Default: dev
+    AllowedValues:
+      - dev
+      - staging
+      - prod
+    Description: Environment name used to tag and name all resources
+
+  AlertEmail:
+    Type: String
+    Description: Email address to receive CloudWatch Alarm notifications
+    Default: dhebbiespride@gmail.com
+
+Resources:
+
+ # ----- USER  SERVICE ALARMS -----
+
+  # Alert when User Service CPU is too high
+  # Economic principle: this is your smoke detector for over-provisioning
+  UserServiceCPUAlarm:
+    Type: AWS::CloudWatch::Alarm
+    Properties:
+      AlarmName: !Sub "${Environment}-user-service-high-cpu"
+      AlarmDescription: "User Service CPU exceeded 80% - consider scaling up or right-sizing"
+      Namespace: AWS/ECS
+      MetricName: CPUUtilization
+      Dimensions:
+        - Name: ClusterName
+          Value: !Sub "${Environment}-cluster-name"
+        - Name: ServiceName
+          Value: !Sub "${Environment}-user-service"
+      Statistic: Average
+      Period: 300          # check every 5 minutes
+      EvaluationPeriods: 2 # alarm if breached 2 times in a row
+      Threshold: 80
+      ComparisonOperator: GreaterThanThreshold
+      AlarmActions:
+        - !Ref AlertTopic
+      OKActions:
+        - !Ref AlertTopic  # also notify when it recovers
+
+  # Alert when User Service Memory is too high
+  UserServiceMemoryAlarm:
+    Type: AWS::CloudWatch::Alarm
+    Properties:
+      AlarmName: !Sub "${Environment}-user-service-high-memory"
+      AlarmDescription: "User Service Memory exceeded 80% - consider increasing memory allocation"
+      Namespace: AWS/ECS
+      MetricName: MemoryUtilization
+      Dimensions:
+        - Name: ClusterName
+          Value: !Sub "${Environment}-cluster-name"
+        - Name: ServiceName
+          Value: !Sub "${Environment}-user-service"
+      Statistic: Average
+      Period: 300
+      EvaluationPeriods: 2
+      Threshold: 80
+      ComparisonOperator: GreaterThanThreshold
+      AlarmActions:
+        - !Ref AlertTopic
+      OKActions:
+        - !Ref AlertTopic
+
+  # ----- PRODUCT SERVICE ALARMS -----
+
+  ProductServiceCPUAlarm:
+    Type: AWS::CloudWatch::Alarm
+    Properties:
+      AlarmName: !Sub "${Environment}-product-service-high-cpu"
+      AlarmDescription: "Product Service CPU exceeded 80%"
+      Namespace: AWS/ECS
+      MetricName: CPUUtilization
+      Dimensions:
+        - Name: ClusterName
+          Value: !Sub "${Environment}-cluster-name"
+        - Name: ServiceName
+          Value: !Sub "${Environment}-product-service"
+      Statistic: Average
+      Period: 300
+      EvaluationPeriods: 2
+      Threshold: 80
+      ComparisonOperator: GreaterThanThreshold
+      AlarmActions:
+        - !Ref AlertTopic
+      OKActions:
+        - !Ref AlertTopic
+
+  ProductServiceMemoryAlarm:
+    Type: AWS::CloudWatch::Alarm
+    Properties:
+      AlarmName: !Sub "${Environment}-product-service-high-memory"
+      AlarmDescription: "Product Service Memory exceeded 80%"
+      Namespace: AWS/ECS
+      MetricName: MemoryUtilization
+      Dimensions:
+        - Name: ClusterName
+          Value: !Sub "${Environment}-cluster-name"
+        - Name: ServiceName
+          Value: !Sub "${Environment}-product-service"
+      Statistic: Average
+      Period: 300
+      EvaluationPeriods: 2
+      Threshold: 80
+      ComparisonOperator: GreaterThanThreshold
+      AlarmActions:
+        - !Ref AlertTopic
+      OKActions:
+        - !Ref AlertTopic
+
+  # ----- ORDER SERVICE ALARMS -----
+
+  OrderServiceCPUAlarm:
+    Type: AWS::CloudWatch::Alarm
+    Properties:
+      AlarmName: !Sub "${Environment}-order-service-high-cpu"
+      AlarmDescription: "Order Service CPU exceeded 80%"
+      Namespace: AWS/ECS
+      MetricName: CPUUtilization
+      Dimensions:
+        - Name: ClusterName
+          Value: !Sub "${Environment}-cluster-name"
+        - Name: ServiceName
+          Value: !Sub "${Environment}-order-service"
+      Statistic: Average
+      Period: 300
+      EvaluationPeriods: 2
+      Threshold: 80
+      ComparisonOperator: GreaterThanThreshold
+      AlarmActions:
+        - !Ref AlertTopic
+      OKActions:
+        - !Ref AlertTopic
+
+  OrderServiceMemoryAlarm:
+    Type: AWS::CloudWatch::Alarm
+    Properties:
+      AlarmName: !Sub "${Environment}-order-service-high-memory"
+      AlarmDescription: "Order Service Memory exceeded 80%"
+      Namespace: AWS/ECS
+      MetricName: MemoryUtilization
+      Dimensions:
+        - Name: ClusterName
+          Value: !Sub "${Environment}-cluster-name"
+        - Name: ServiceName
+          Value: !Sub "${Environment}-order-service"
+      Statistic: Average
+      Period: 300
+      EvaluationPeriods: 2
+      Threshold: 80
+      ComparisonOperator: GreaterThanThreshold
+      AlarmActions:
+        - !Ref AlertTopic
+      OKActions:
+        - !Ref AlertTopic
+
+  # ----- NOTIFICATION SERVICE ALARMS -----
+
+  NotificationServiceCPUAlarm:
+    Type: AWS::CloudWatch::Alarm
+    Properties:
+      AlarmName: !Sub "${Environment}-notification-service-high-cpu"
+      AlarmDescription: "Notification Service CPU exceeded 80%"
+      Namespace: AWS/ECS
+      MetricName: CPUUtilization
+      Dimensions:
+        - Name: ClusterName
+          Value: !Sub "${Environment}-cluster-name"
+        - Name: ServiceName
+          Value: !Sub "${Environment}-notification-service"
+      Statistic: Average
+      Period: 300
+      EvaluationPeriods: 2
+      Threshold: 80
+      ComparisonOperator: GreaterThanThreshold
+      AlarmActions:
+        - !Ref AlertTopic
+      OKActions:
+        - !Ref AlertTopic
+
+
+
+
+  # ----- RDS ALARMS -----
+
+  UserRDSCPUAlarm:
+    Type: AWS::CloudWatch::Alarm
+    Properties:
+      AlarmName: !Sub "${Environment}-user-rds-high-cpu"
+      AlarmDescription: "RDS CPU exceeded 80% - database under heavy load"
+      Namespace: AWS/RDS
+      MetricName: CPUUtilization
+      Dimensions:
+        - Name: DBInstanceIdentifier
+          Value: !ImportValue
+            Fn::Sub: "${Environment}-user-rds-identifier"
+      Statistic: Average
+      Period: 300
+      EvaluationPeriods: 2
+      Threshold: 80
+      ComparisonOperator: GreaterThanThreshold
+      AlarmActions:
+        - !Ref AlertTopic
+      OKActions:
+        - !Ref AlertTopic
+
+  UserRDSConnectionsAlarm:
+    Type: AWS::CloudWatch::Alarm
+    Properties:
+      AlarmName: !Sub "${Environment}-user-rds-high-connections"
+      AlarmDescription: "RDS connections exceeded 80 - approaching connection limit"
+      Namespace: AWS/RDS
+      MetricName: DatabaseConnections
+      Dimensions:
+        - Name: DBInstanceIdentifier
+          Value: !ImportValue
+            Fn::Sub: "${Environment}-user-rds-identifier"
+      Statistic: Average
+      Period: 300
+      EvaluationPeriods: 2
+      Threshold: 80
+      ComparisonOperator: GreaterThanThreshold
+      AlarmActions:
+        - !Ref AlertTopic
+      OKActions:
+        - !Ref AlertTopic
+
+
+
+  ProductRDSCPUAlarm:
+    Type: AWS::CloudWatch::Alarm
+    Properties:
+      AlarmName: !Sub "${Environment}-product-rds-high-cpu"
+      AlarmDescription: "RDS CPU exceeded 80% - database under heavy load"
+      Namespace: AWS/RDS
+      MetricName: CPUUtilization
+      Dimensions:
+        - Name: DBInstanceIdentifier
+          Value: !ImportValue
+            Fn::Sub: "${Environment}-product-rds-identifier"
+      Statistic: Average
+      Period: 300
+      EvaluationPeriods: 2
+      Threshold: 80
+      ComparisonOperator: GreaterThanThreshold
+      AlarmActions:
+        - !Ref AlertTopic
+      OKActions:
+        - !Ref AlertTopic
+
+  ProductRDSConnectionsAlarm:
+    Type: AWS::CloudWatch::Alarm
+    Properties:
+      AlarmName: !Sub "${Environment}-product-rds-high-connections"
+      AlarmDescription: "RDS connections exceeded 80 - approaching connection limit"
+      Namespace: AWS/RDS
+      MetricName: DatabaseConnections
+      Dimensions:
+        - Name: DBInstanceIdentifier
+          Value: !ImportValue
+            Fn::Sub: "${Environment}-product-rds-identifier"
+      Statistic: Average
+      Period: 300
+      EvaluationPeriods: 2
+      Threshold: 80
+      ComparisonOperator: GreaterThanThreshold
+      AlarmActions:
+        - !Ref AlertTopic
+      OKActions:
+        - !Ref AlertTopic
+
+
+  OrderRDSCPUAlarm:
+    Type: AWS::CloudWatch::Alarm
+    Properties:
+      AlarmName: !Sub "${Environment}-order-rds-high-cpu"
+      AlarmDescription: "RDS CPU exceeded 80% - database under heavy load"
+      Namespace: AWS/RDS
+      MetricName: CPUUtilization
+      Dimensions:
+        - Name: DBInstanceIdentifier
+          Value: !ImportValue
+            Fn::Sub: "${Environment}-order-rds-identifier"
+      Statistic: Average
+      Period: 300
+      EvaluationPeriods: 2
+      Threshold: 80
+      ComparisonOperator: GreaterThanThreshold
+      AlarmActions:
+        - !Ref AlertTopic
+      OKActions:
+        - !Ref AlertTopic
+
+  OrderRDSConnectionsAlarm:
+    Type: AWS::CloudWatch::Alarm
+    Properties:
+      AlarmName: !Sub "${Environment}-order-rds-high-connections"
+      AlarmDescription: "RDS connections exceeded 80 - approaching connection limit"
+      Namespace: AWS/RDS
+      MetricName: DatabaseConnections
+      Dimensions:
+        - Name: DBInstanceIdentifier
+          Value: !ImportValue
+            Fn::Sub: "${Environment}-order-rds-identifier"
+      Statistic: Average
+      Period: 300
+      EvaluationPeriods: 2
+      Threshold: 80
+      ComparisonOperator: GreaterThanThreshold
+      AlarmActions:
+        - !Ref AlertTopic
+      OKActions:
+        - !Ref AlertTopic
