@@ -141,11 +141,29 @@ Outputs:
     Export:
       Name: !Sub "${Environment}-lb-sg-id"
 
-  ECSTaskSGId:
-    Description: Security group ID for ECS tasks
-    Value: !Ref ECSTaskSG
+  UserServiceSGId:
+    Description: Security group ID for user service ECS tasks
+    Value: !Ref UserServiceSG
     Export:
-      Name: !Sub "${Environment}-ecs-sg-id"
+      Name: !Sub "${Environment}-user-sg-id"
+
+  ProductServiceSGId:
+    Description: Security group ID for product service ECS tasks
+    Value: !Ref ProductServiceSG
+    Export:
+      Name: !Sub "${Environment}-product-sg-id"
+
+  OrderServiceSGId:
+    Description: Security group ID for order service ECS tasks  
+    Value: !Ref OrderServiceSG
+    Export:
+      Name: !Sub "${Environment}-order-sg-id"
+
+  NotificationServiceSGId:
+    Description: Security group ID for notification service ECS tasks  
+    Value: !Ref NotificationServiceSG
+    Export:
+      Name: !Sub "${Environment}-notification-sg-id"
 
   RDSSGId:
     Description: Security group ID for RDS instance
