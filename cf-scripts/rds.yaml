@@ -175,3 +175,21 @@ Outputs:
     Value: !GetAtt OrderRDSInstance.Endpoint.Address
     Export:
       Name: !Sub "${Environment}-order-rds-endpoint"
+
+  UserDBIdentifier:
+    Description: DB instance identifier for user RDS instance
+    Value: !Sub "${Environment}-rds-instance"
+    Export:
+      Name: !Sub "${Environment}-user-rds-identifier"
+
+  ProductDBIdentifier:
+    Description: DB instance identifier for product RDS instance
+    Value: !Sub "${Environment}-rds-instance-2"
+    Export:
+      Name: !Sub "${Environment}-product-rds-identifier"
+
+  OrderDBIdentifier: 
+    Description: DB instance identifier for order RDS instance
+    Value: !Sub "${Environment}-rds-instance-3"
+    Export:
+      Name: !Sub "${Environment}-order-rds-identifier"
