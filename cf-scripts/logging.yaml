@@ -1,0 +1,64 @@
+AWSTemplateFormatVersion: "2010-09-09"
+
+Description: Observability stack for microservices project - CloudWatch Logs
+
+Parameters:
+  Environment:
+    Type: String
+    Default: dev
+    AllowedValues:
+      - dev
+      - staging
+      - prod
+    Description: Environment name used to tag and name all resources
+
+  LogRetentionDays:
+    Type: Number
+    Default: 7
+    AllowedValues:
+      - 7
+      - 14
+      - 30
+      - 60
+      - 90
+    Description: Number of days to retain logs (shorter = cheaper)
+
+Resources:
+  # Log group for each service - where container logs are stored
+  UserServiceLogGroup:
+    Type: AWS::Logs::LogGroup
+    Properties:
+      LogGroupName: !Sub "/ecs/${Environment}-user-service"
+      RetentionInDays: !Ref LogRetentionDays
+      Tags:
+        - Key: Environment
+          Value: !Ref Environment
+
+  ProductServiceLogGroup:
+    Type: AWS::Logs::LogGroup
+    Properties:
+      LogGroupName: !Sub "/ecs/${Environment}-product-service"
+      RetentionInDays: !Ref LogRetentionDays
+      Tags:
+        - Key: Environment
+          Value: !Ref Environment
+
+  OrderServiceLogGroup:
+    Type: AWS::Logs::LogGroup
+    Properties:
+      LogGroupName: !Sub "/ecs/${Environment}-order-service"
+      RetentionInDays: !Ref LogRetentionDays
+      Tags:
+        - Key: Environment
+          Value: !Ref Environment
+
+  NotificationServiceLogGroup:
+    Type: AWS::Logs::LogGroup
+    Properties:
+      LogGroupName: !Sub "/ecs/${Environment}-notification-service"
+      RetentionInDays: !Ref LogRetentionDays
+      Tags:
+        - Key: Environment
+          Value: !Ref Environment
+
+
