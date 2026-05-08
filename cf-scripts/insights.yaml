@@ -1,6 +1,6 @@
 AWSTemplateFormatVersion: "2010-09-09"
 
-Description: Insights stack for microservices project - Container Insights 
+Description: Observability stack for microservices project - Container Insights 
 
 Parameters:
   Environment:
