@@ -123,7 +123,7 @@ Resources:
         - IpProtocol: tcp
           FromPort: !Ref RDSPort
           ToPort: !Ref RDSPort
-          SourceSecurityGroupId: !Red ProductService
+          SourceSecurityGroupId: !Ref ProductServiceSG
         - IpProtocol: tcp
           FromPort: !Ref RDSPort
           ToPort: !Ref RDSPort
