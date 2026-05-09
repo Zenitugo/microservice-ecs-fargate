@@ -66,6 +66,12 @@ Outputs:
     Export:
       Name: !Sub "${Environment}-OrdersQueueName"
 
+  OrderQueueArn:
+    Description: ARN of the orders SQS queue
+    Value: !GetAtt OrdersQueue.Arn
+    Export:
+      Name: !Sub "${Environment}-OrdersQueueArn"
+
   OrdersDeadLetterQueueName:
     Description: Name of the orders dead letter SQS queue 
     Value: !Ref OrdersDeadLetterQueue
