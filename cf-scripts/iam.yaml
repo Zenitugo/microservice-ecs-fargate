@@ -30,7 +30,7 @@ Resources:
         - arn:aws:iam::aws:policy/service-role/AmazonECSTaskExecutionRolePolicy
       Tags:
         - Key: Environment
-          value: !Ref Environment
+          Value: !Ref Environment
 
   
   NotificationTaskRole:
@@ -46,20 +46,21 @@ Resources:
                 - ecs-tasks.amazonaws.com
             Action: 
               - 'sts:AssumeRole'
-    Policies:
-      - PolicyName: !Sub "${Environment}-notification-task-sqs-policy"
-        PolicyDocument:
-          Version: "2012-10-17"
-          Statement:
-            - Effect: Allow
-              Action:
-                - sqs:ReceiveMessage
-                - sqs:DeleteMessage
-                - sqs:GetQueueAttributes
-              Resource: !GetAtt OrderQueue.Arn
+      Policies:
+        - PolicyName: !Sub "${Environment}-notification-task-sqs-policy"
+          PolicyDocument:
+            Version: "2012-10-17"
+            Statement:
+              - Effect: Allow
+                Action:
+                  - sqs:ReceiveMessage
+                  - sqs:DeleteMessage
+                  - sqs:GetQueueAttributes
+                Resource: !ImportValue
+                  Fn::Sub: "${Environment}-OrdersQueueArn"
       Tags:
-        - Key: Environment
-          value: !Ref Environment
+          - Key: Environment
+            Value: !Ref Environment
 
   OrderTaskRole: 
     Type: AWS::IAM::Role
@@ -74,29 +75,30 @@ Resources:
                 - ecs-tasks.amazonaws.com
             Action: 
               - 'sts:AssumeRole'
-    Policies:
-      - PolicyName: !Sub "${Environment}-order-task-service-policy"
-        PolicyDocument:
-          Version: "2012-10-17"
-          Statement:
-            - Effect: Allow
-              Action:
-                - sqs:SendMessage
-                - sqs:GetQueueAttributes
-              Resource: !GetAtt OrderQueue.Arn
-            - Effect: Allow
-              Action:
-                - secretsmanager:GetSecretValue
-              Resource:
-                - !ImportValue
-                  Fn::Sub: "${Environment}-order-db-master-password-arn"
+      Policies:
+        - PolicyName: !Sub "${Environment}-order-task-service-policy"
+          PolicyDocument:
+            Version: "2012-10-17"
+            Statement:
+              - Effect: Allow
+                Action:
+                  - sqs:SendMessage
+                  - sqs:GetQueueAttributes
+                Resource: !ImportValue
+                  Fn::Sub: "${Environment}-OrdersQueueArn"
+              - Effect: Allow
+                Action:
+                  - secretsmanager:GetSecretValue
+                Resource:
+                  - !ImportValue
+                    Fn::Sub: "${Environment}-order-db-master-password-arn"
                 
-        Tags:
-          - Key: Environment
-            value: !Ref Environment
+      Tags:
+        - Key: Environment
+          Value: !Ref Environment
 
   ProductServiceTaskRole:
-    Type: AWS::IAM:Role
+    Type: AWS::IAM::Role
     Properties:
       RoleName: !Sub "${Environment}-product-task-role"
       AssumeRolePolicyDocument:
@@ -108,21 +110,21 @@ Resources:
                 - ecs-tasks.amazonaws.com
             Action: 
               - 'sts:AssumeRole'
-    Policies:
-      - PolicyName: !Sub "${Environment}-product-task-sqs-policy"
-        PolicyDocument:
-          Version: "2012-10-17"
-          Statement:
-            - Effect: Allow
-              Action:
-                - secretsmanager:GetSecretValue
-              Resource:
-                - !ImportValue
-                  Fn::Sub: "${Environment}-product-db-master-password-arn"
+      Policies:
+        - PolicyName: !Sub "${Environment}-product-task-sqs-policy"
+          PolicyDocument:
+            Version: "2012-10-17"
+            Statement:
+              - Effect: Allow
+                Action:
+                  - secretsmanager:GetSecretValue
+                Resource:
+                  - !ImportValue
+                    Fn::Sub: "${Environment}-product-db-master-password-arn"
 
-        Tags:
-          - Key: Environment
-            value: !Ref Environment 
+      Tags:
+        - Key: Environment
+          Value: !Ref Environment 
 
  
   UserServiceTaskRole:
@@ -138,21 +140,21 @@ Resources:
                 - ecs-tasks.amazonaws.com
             Action: 
               - 'sts:AssumeRole'
-    Policies:
-      - PolicyName: !Sub "${Environment}-user-task-service-policy"
-        PolicyDocument:
-          Version: "2012-10-17"
-          Statement:
-            - Effect: Allow
-              Action:
-                - secretsmanager:GetSecretValue
-              Resource:
-                - !ImportValue
-                  Fn::Sub: "${Environment}-user-db-master-password-arn"
+      Policies:
+        - PolicyName: !Sub "${Environment}-user-task-service-policy"
+          PolicyDocument:
+            Version: "2012-10-17"
+            Statement:
+              - Effect: Allow
+                Action:
+                  - secretsmanager:GetSecretValue
+                Resource:
+                  - !ImportValue
+                    Fn::Sub: "${Environment}-user-db-master-password-arn"
 
-        Tags:
-          - Key: Environment
-            value: !Ref Environment
+      Tags:
+        - Key: Environment
+          Value: !Ref Environment
 
   ECSExecutionSecrets:
     Type: AWS::IAM::RolePolicy
