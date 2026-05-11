@@ -1,0 +1,32 @@
+AWSTemplateFormatVersion: "2010-09-09"
+
+Description: Observability stack for microservices project -  X-Ray
+
+Parameters:
+  Environment:
+    Type: String
+    Default: dev
+    AllowedValues:
+      - dev
+      - staging
+      - prod
+    Description: Envi
+
+Resources:
+  # X-Ray Sampling Rule
+  # Tells X-Ray how many requests to trace
+   XRaySamplingRule:
+    Type: AWS::XRay::SamplingRule
+    Properties:
+      SamplingRule:
+        RuleName: !Sub "${Environment}-microservices-sampling"
+        Priority: 1
+        ReservoirSize: 5     # always trace 5 requests per second
+        FixedRate: 0.05      # then trace 5% of remaining requests
+        URLPath: "*"
+        Host: "*"
+        HTTPMethod: "*"
+        ServiceName: "*"
+        ServiceType: "*"
+        ResourceARN: "*"
+        Version: 1
