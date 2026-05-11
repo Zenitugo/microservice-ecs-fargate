@@ -30,7 +30,7 @@ Parameters:
   dbengineVersion:
     Type: String
     Default: "16.13"
-    Description: Database engine version for RDS instance (e.g. 13.4 for postgres, 8.0 for mysql)
+    Description: Database engine version for RDS instance
 
   storageType:
     Type: String
@@ -39,22 +39,22 @@ Parameters:
 
   dbName1:
     Type: String
-    Default: user-db
+    Default: userdb
     Description: Name of the database to create in RDS instance
 
   dbName2:
     Type: String
-    Default: order-db
+    Default: orderdb
     Description: Name of the database to create in RDS instance
 
   dbName3:
     Type: String
-    Default: product-db
+    Default: productdb
     Description: Name of the database to create in RDS instance
 
   dbMasterUsername:
     Type: String
-    Default: admin
+    Default: dbadmin
     Description: Master username for RDS instance
   
 Resources:
@@ -65,20 +65,13 @@ Resources:
       DBSubnetGroupName: !Sub "${Environment}-rds-subnet-group"
       DBSubnetGroupDescription: Subnet group for RDS instance
       SubnetIds:
-        - !ImportValue
-          Fn::Sub: "${Environment}-private-subnet-1-id"
-        - !ImportValue
-          Fn::Sub: "${Environment}-private-subnet-2-id"
-      Tags:
-        - Key: Name
-          Value: !Sub "${Environment}-rds-subnet-group"
-
-
-
+        - Fn::ImportValue: !Sub "${Environment}-private-subnet-1-id"
+        - Fn::ImportValue: !Sub "${Environment}-private-subnet-2-id"
+  
   UserRDSInstance:
     Type: AWS::RDS::DBInstance
     Properties:
-      DBInstanceIdentifier: !Sub "${Environment}-rds-instance"
+      DBInstanceIdentifier: !Sub "${Environment}-userdb-instance"
       AllocatedStorage: !Ref allocatedStorage
       DBInstanceClass: !Ref dbInstanceClass
       DBName: !Ref dbName1
@@ -86,17 +79,12 @@ Resources:
       EngineVersion: !Ref dbengineVersion
       StorageType: !Ref storageType
       MasterUsername: !Ref dbMasterUsername
-      MasterUserDBMasterPassword: !Sub
-        - "{{resolve:secretsmanager:${SecretArn}:SecretString:password}}"
-        - SecretArn: !ImportValue
-            Fn::Sub: "${Environment}-user-db-master-password-arn"
+      MasterUserPassword: !ImportValue userdb-master-password
       VPCSecurityGroups:
-        - !ImportValue
-          Fn::Sub: "${Environment}-rds-sg-id"
+        - Fn::ImportValue: !Sub "${Environment}-rds-sg-id"
       DBSubnetGroupName: !Ref SubnetGroup
       MultiAZ: true
       PubliclyAccessible: false
-      SkipFinalSnapshot: true
       Tags:
         - Key: Name
           Value: !Sub "${Environment}-rds-instance"
@@ -106,25 +94,20 @@ Resources:
   ProductRDSInstance:
     Type: AWS::RDS::DBInstance
     Properties:
-      DBInstanceIdentifier: !Sub "${Environment}-rds-instance-2"
+      DBInstanceIdentifier: !Sub "${Environment}-productdb-instance"
       AllocatedStorage: !Ref allocatedStorage
       DBInstanceClass: !Ref dbInstanceClass
-      DBName: !Ref dbName2
+      DBName: !Ref dbName3
       Engine: !Ref dbengine
       EngineVersion: !Ref dbengineVersion
       StorageType: !Ref storageType
       MasterUsername: !Ref dbMasterUsername
-      MasterUserPassword: !Sub
-        - "{{resolve:secretsmanager:${SecretArn}:SecretString:password}}"
-        - SecretArn: !ImportValue
-            Fn::Sub: "${Environment}-product-db-master-password-arn"
+      MasterUserPassword: !ImportValue productdb-master-password
       VPCSecurityGroups:
-        - !ImportValue
-          Fn::Sub: "${Environment}-rds-sg-id"
+        - Fn::ImportValue: !Sub "${Environment}-rds-sg-id"
       DBSubnetGroupName: !Ref SubnetGroup
       MultiAZ: true
       PubliclyAccessible: false
-      SkipFinalSnapshot: true
       Tags:
         - Key: Name
           Value: !Sub "${Environment}-rds-instance-2"
@@ -133,25 +116,20 @@ Resources:
   OrderRDSInstance:
     Type: AWS::RDS::DBInstance
     Properties:
-      DBInstanceIdentifier: !Sub "${Environment}-rds-instance-3"
+      DBInstanceIdentifier: !Sub "${Environment}-orderdb-instance"
       AllocatedStorage: !Ref allocatedStorage
       DBInstanceClass: !Ref dbInstanceClass
-      DBName: !Ref dbName3
+      DBName: !Ref dbName2
       Engine: !Ref dbengine
       EngineVersion: !Ref dbengineVersion
       StorageType: !Ref storageType
       MasterUsername: !Ref dbMasterUsername
-      MasterUserPassword: !Sub
-        - "{{resolve:secretsmanager:${SecretArn}:SecretString:password}}"
-        - SecretArn: !ImportValue
-            Fn::Sub: "${Environment}-order-db-master-password-arn"  
+      MasterUserPassword: !ImportValue orderdb-master-password
       VPCSecurityGroups:
-        - !ImportValue
-          Fn::Sub: "${Environment}-rds-sg-id"
+        - Fn::ImportValue: !Sub "${Environment}-rds-sg-id"
       DBSubnetGroupName: !Ref SubnetGroup
       MultiAZ: true
       PubliclyAccessible: false
-      SkipFinalSnapshot: true
       Tags:
         - Key: Name
           Value: !Sub "${Environment}-rds-instance-3"
@@ -162,34 +140,34 @@ Outputs:
     Description: Endpoint for user RDS instance
     Value: !GetAtt UserRDSInstance.Endpoint.Address
     Export:
-      Name: !Sub "${Environment}-user-rds-endpoint"
+      Name: !Sub "${dbName1}-endpoint"
 
   ProductRDSInstanceEndpoint:
     Description: Endpoint for product RDS instance
     Value: !GetAtt ProductRDSInstance.Endpoint.Address
     Export:
-      Name: !Sub "${Environment}-product-rds-endpoint"
+      Name: !Sub "${dbName3}-endpoint"
 
   OrderRDSInstanceEndpoint:
     Description: Endpoint for order RDS instance
     Value: !GetAtt OrderRDSInstance.Endpoint.Address
     Export:
-      Name: !Sub "${Environment}-order-rds-endpoint"
+      Name: !Sub "${dbName2}-endpoint"
 
   UserDBIdentifier:
     Description: DB instance identifier for user RDS instance
-    Value: !Sub "${Environment}-rds-instance"
+    Value: !Ref UserRDSInstance
     Export:
-      Name: !Sub "${Environment}-user-rds-identifier"
+      Name: !Sub "${dbName1}-identifier"
 
   ProductDBIdentifier:
     Description: DB instance identifier for product RDS instance
-    Value: !Sub "${Environment}-rds-instance-2"
-    Export:
-      Name: !Sub "${Environment}-product-rds-identifier"
+    Value: !Ref ProductRDSInstance
+    Export: 
+      Name: !Sub "${dbName3}-identifier"
 
   OrderDBIdentifier: 
     Description: DB instance identifier for order RDS instance
-    Value: !Sub "${Environment}-rds-instance-3"
+    Value: !Ref OrderRDSInstance
     Export:
-      Name: !Sub "${Environment}-order-rds-identifier"
+      Name: !Sub "${dbName2}-identifier"
