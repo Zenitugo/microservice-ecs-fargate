@@ -106,7 +106,7 @@ Resources:
           TargetGroupArn: !Ref UserServiceTargetGroup
   
 
- ProductServiceTargetGroup:
+  ProductServiceTargetGroup:
     Type: AWS::ElasticLoadBalancingV2::TargetGroup
     Properties:
       Name: !Sub "${Environment}-product-app-tg"
