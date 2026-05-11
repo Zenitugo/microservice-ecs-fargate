@@ -20,7 +20,7 @@ Parameters:
   Region:
     Type: String
     Default: eu-central-1
-    Description: AWS region for the resources
+    Description: AWS region for the resource
   
 
 
@@ -46,21 +46,21 @@ Resources:
       ContainerDefinitions:
         - Name: user-service-container
           Image: !ImportValue
-            Fn::Sub: "${Environment}-user-repo-uri:latest"
-          Essential: false
+            Fn::Sub: "${Environment}-user-repo-uri"
+          Essential: true
           PortMappings:
             - ContainerPort: 3001
               HostPort: 3001
               Protocol: tcp
           Environment:
-            - Name: USER_DB_SECRET_ARN
-              Value: !ImportValue
-                Fn::Sub: "${Environment}-user-db-master-password-arn"
+            - Name: USER_DB_SECRET
+              Value: 
+                Fn::ImportValue: userdb-master-password
             - Name: AWS_REGION
               Value: !Ref Region
-            - DB_HOST:
-              Value: !ImportValue
-                Fn::Sub: "${Environment}-user-rds-endpoint"
+            - Name: DB_HOST
+              Value: 
+                Fn::ImportValue: userdb-endpoint
           LogConfiguration:
             LogDriver: awslogs
             Options:
@@ -91,6 +91,8 @@ Resources:
       LoadBalancers:
         - TargetGroupArn: !ImportValue
             Fn::Sub: "${Environment}-UserServiceTargetGroupARN"
+          ContainerName: user-service-container
+          ContainerPort: 3001
 
 
   
@@ -110,21 +112,21 @@ Resources:
       ContainerDefinitions:
         - Name: product-service-container
           Image: !ImportValue
-            Fn::Sub: "${Environment}-product-repo-uri:latest"
-          Essential: false
+            Fn::Sub: "${Environment}-product-repo-uri"
+          Essential: true
           PortMappings:
             - ContainerPort: 3002
               HostPort: 3002
               Protocol: tcp
           Environment:
             - Name: PRODUCT_DB_SECRET_ARN
-              Value: !ImportValue
-                Fn::Sub: "${Environment}-product-db-master-password-arn"
-            - Name: AWS_REGION
+              Value:
+                Fn::ImportValue: productdb-master-password
+            - Name: Region
               Value: !Ref Region
-            - DB_HOST:
-              Value: !ImportValue
-                Fn::Sub: "${Environment}-product-rds-endpoint"            
+            - Name: DB_HOST
+              Value:
+                Fn::ImportValue: productdb-endpoint           
           LogConfiguration:
             LogDriver: awslogs
             Options:
@@ -154,6 +156,8 @@ Resources:
       LoadBalancers:
         - TargetGroupArn: !ImportValue
             Fn::Sub: "${Environment}-ProductServiceTargetGroupARN"
+          ContainerName: product-service-container
+          ContainerPort: 3002
 
 
   OrderEcsTaskDefinition:
@@ -172,21 +176,21 @@ Resources:
       ContainerDefinitions:
         - Name: order-service-container
           Image: !ImportValue
-            Fn::Sub: "${Environment}-order-repo-uri:latest"
-          Essential: false
+            Fn::Sub: "${Environment}-order-repo-uri"
+          Essential: true
           PortMappings:
             - ContainerPort: 3003
               HostPort: 3003
               Protocol: tcp
           Environment:
             - Name: ORDER_DB_SECRET_ARN
-              Value: !ImportValue
-                Fn::Sub: "${Environment}-order-db-master-password-arn"
+              Value: 
+                Fn::ImportValue: orderdb-master-password
             - Name: AWS_REGION
               Value: !Ref Region 
-            - DB_HOST: 
-              Value: !ImportValue
-                Fn::Sub: "${Environment}-order-rds-endpoint" 
+            - Name: DB_HOST
+              Value: 
+                Fn::ImportValue: orderdb-endpoint
           LogConfiguration:
             LogDriver: awslogs
             Options:
@@ -216,6 +220,8 @@ Resources:
       LoadBalancers:
         - TargetGroupArn: !ImportValue
             Fn::Sub: "${Environment}-OrderServiceTargetGroupARN"
+          ContainerName: order-service-container
+          ContainerPort: 3003
 
 
 
@@ -235,7 +241,8 @@ Resources:
       ContainerDefinitions:
         - Name: notification-service-container
           Image: !ImportValue
-            Fn::Sub: "${Environment}-notification-repo-uri:latest"
+            Fn::Sub: "${Environment}-notification-repo-uri"
+          Essential: true
           PortMappings:
             - ContainerPort: 3004
               HostPort: 3004
