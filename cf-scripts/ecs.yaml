@@ -64,7 +64,8 @@ Resources:
           LogConfiguration:
             LogDriver: awslogs
             Options:
-              awslogs-group: !Sub "/${Environment}/user-service-logs"
+              awslogs-group: !ImportValue
+                Fn::Sub: "${Environment}-user-service-log-group-name"
               awslogs-region: !Ref Region
               awslogs-stream-prefix: user
 
@@ -130,7 +131,8 @@ Resources:
           LogConfiguration:
             LogDriver: awslogs
             Options:
-              awslogs-group: !Sub "/${Environment}/product-service-logs"
+              awslogs-group: !ImportValue
+                Fn::Sub: "${Environment}-product-service-log-group-name"
               awslogs-region: !Ref Region
               awslogs-stream-prefix: product
 
@@ -194,7 +196,8 @@ Resources:
           LogConfiguration:
             LogDriver: awslogs
             Options:
-              awslogs-group: !Sub "/${Environment}/order-service-logs"
+              awslogs-group: !ImportValue
+                Fn::Sub: "${Environment}-order-service-log-group-name"
               awslogs-region: !Ref Region
               awslogs-stream-prefix: order
 
@@ -250,7 +253,8 @@ Resources:
           LogConfiguration:
             LogDriver: awslogs
             Options:
-              awslogs-group: !Sub "/${Environment}/notification-service-logs"
+              awslogs-group: !ImportValue
+                Fn::Sub: "${Environment}-notification-service-log-group-name"
               awslogs-region: !Ref Region
               awslogs-stream-prefix: notification
 
