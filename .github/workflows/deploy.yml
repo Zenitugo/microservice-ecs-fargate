@@ -1,0 +1,203 @@
+name: Deploy a three tier application to AWS ECS Fargate using GitHub Actions
+on:
+  push:
+    branches: [ master ]
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    env:  
+      AWS_ACCOUNT_ID: ${{ secrets.AWS_ACCOUNT_ID }}
+      AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+      AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+
+    steps:
+      # Checkout the repository
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      # Configure AWS credentials
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: "eu-central-1"
+
+      # Create infrastructure using CloudFormation
+      - name: Deploy CloudFormation stack
+        run: |
+          cd cf-scripts
+          ./deploy.sh dev
+
+      # Retrieve ECR repository URIs from CloudFormation outputs
+      - name: Retrieve user service repository URIs
+        run: |
+          USER_ECR_URI=$(aws cloudformation describe-stacks \
+            --stack-name microservice-ecr \
+            --query "Stacks[0].Outputs[?OutputKey=='UserRepositoryUri'].OutputValue" \
+            --output text)
+
+          PRODUCT_ECR_URI=$(aws cloudformation describe-stacks \
+            --stack-name microservice-ecr \
+            --query "Stacks[0].Outputs[?OutputKey=='ProductServiceRepoUri'].OutputValue" \
+            --output text)
+
+          ORDER_ECR_URI=$(aws cloudformation describe-stacks \
+            --stack-name microservice-ecr \
+            --query "Stacks[0].Outputs[?OutputKey=='OrderServiceRepoUri'].OutputValue" \
+            --output text)
+
+          NOTIFICATION_ECR_URI=$(aws cloudformation describe-stacks \
+            --stack-name microservice-ecr \
+            --query "Stacks[0].Outputs[?OutputKey=='NotificationServiceRepoUri'].OutputValue" \
+            --output text)
+
+      # Store the ECR repository URI in GitHub Actions environment variable
+          echo "USER_ECR_URI=$USER_ECR_URI" >> $GITHUB_ENV
+          echo "PRODUCT_ECR_URI=$PRODUCT_ECR_URI" >> $GITHUB_ENV
+          echo "ORDER_ECR_URI=$ORDER_ECR_URI" >> $GITHUB_ENV
+          echo "NOTIFICATION_ECR_URI=$NOTIFICATION_ECR_URI" >> $GITHUB_ENV
+
+
+      # Get ECS Cluster and service information
+      - name: Get ECS Cluster and service information
+        run: |
+          CLUSTER=$(aws cloudformation describe-stacks \
+            --stack-name microservice-ecs \
+            --query "Stacks[0].Outputs[?OutputKey=='ClusterName'].OutputValue" \
+            --output text)
+
+          USER_SERVICE=$(aws cloudformation describe-stacks \
+            --stack-name microservice-ecs \
+            --query "Stacks[0].Outputs[?OutputKey=='UserEcsServiceName'].OutputValue" \
+            --output text)
+
+          PRODUCT_SERVICE=$(aws cloudformation describe-stacks \
+            --stack-name microservice-ecs \
+            --query "Stacks[0].Outputs[?OutputKey=='ProductEcsServiceName'].OutputValue" \
+            --output text)
+
+          ORDER_SERVICE=$(aws cloudformation describe-stacks \
+            --stack-name microservice-ecs \
+            --query "Stacks[0].Outputs[?OutputKey=='OrderEcsServiceName'].OutputValue" \
+            --output text)
+
+          NOTIFICATION_SERVICE=$(aws cloudformation describe-stacks \
+            --stack-name microservice-ecs \
+            --query "Stacks[0].Outputs[?OutputKey=='NotificationEcsServiceName'].OutputValue" \
+            --output text)
+      
+
+      # Store the ECS Cluster and service information in GitHub Actions environment variable
+          echo "CLUSTER=$CLUSTER" >> $GITHUB_ENV
+          echo "USER_SERVICE=$USER_SERVICE" >> $GITHUB_ENV
+          echo "PRODUCT_SERVICE=$PRODUCT_SERVICE" >> $GITHUB_ENV
+          echo "ORDER_SERVICE=$ORDER_SERVICE" >> $GITHUB_ENV
+          echo "NOTIFICATION_SERVICE=$NOTIFICATION_SERVICE" >> $GITHUB_ENV
+
+      # Login to AWS ECR
+      - name: Login to AWS ECR
+        run: |
+          aws ecr get-login-password --region eu-central-1 | \
+          docker login --username AWS --password-stdin \
+          ${{ secrets.AWS_ACCOUNT_ID }}.dkr.ecr.eu-central-1.amazonaws.com
+
+
+      # Build and push Docker images for User service
+      - name: Build and push user service
+        run: |
+          docker build -t user-service ./app/user-service
+          docker tag user-service:latest $USER_ECR_URI:latest
+          docker push $USER_ECR_URI:latest
+
+      # Build and push Docker images for Product service
+      - name: Build and push product service
+        run: |
+          docker build -t product-service ./app/product-service
+          docker tag product-service:latest $PRODUCT_ECR_URI:latest
+          docker push $PRODUCT_ECR_URI:latest
+
+      # Build and push Docker images for Order service
+      - name: Build and push order service
+        run: |
+          docker build -t order-service ./app/order-service
+          docker tag order-service:latest $ORDER_ECR_URI:latest
+          docker push $ORDER_ECR_URI:latest
+      
+
+      # Build and push Docker images for Notification service
+      - name: Build and push notification service
+        run: |
+          docker build -t notification-service ./app/notification-service
+          docker tag notification-service:latest $NOTIFICATION_ECR_URI:latest
+          docker push $NOTIFICATION_ECR_URI:latest
+
+
+      # Update ECS services to use User service image
+      - name: Update ECS services with the user service image
+        run: |
+          aws ecs update-service \
+          --cluster ${{ env.CLUSTER }} \
+          --service ${{ env.USER_SERVICE }} \
+          --force-new-deployment \
+          --region eu-central-1
+
+
+      # Update ECS services to use Product service image
+      - name: Update ECS services with the product service image
+        run: |
+          aws ecs update-service \
+          --cluster ${{ env.CLUSTER }} \
+          --service ${{ env.PRODUCT_SERVICE }} \
+          --force-new-deployment \
+          --region eu-central-1
+
+      # Update ECS services to use Order service image
+      - name: Update ECS services with the order service image
+        run: |
+          aws ecs update-service \
+          --cluster ${{ env.CLUSTER }} \
+          --service ${{ env.ORDER_SERVICE }} \
+          --force-new-deployment \
+          --region eu-central-1
+
+      # Update ECS services to use Notification service image
+      - name: Update ECS services with the notification service image
+        run: |
+          aws ecs update-service \
+          --cluster ${{ env.CLUSTER }} \
+          --service ${{ env.NOTIFICATION_SERVICE }} \
+          --force-new-deployment \
+          --region eu-central-1
+
+     # Wait for the User service to stabilize
+      - name: Wait for User service to stabilize
+        run: |
+          aws ecs wait services-stable \
+          --cluster ${{ env.CLUSTER }} \
+          --services ${{ env.USER_SERVICE }} \
+          --region eu-central-1
+
+      # Wait for the Product service to stabilize
+      - name: Wait for Product service to stabilize
+        run: |  
+          aws ecs wait services-stable \
+          --cluster ${{ env.CLUSTER }} \
+          --services ${{ env.PRODUCT_SERVICE }} \
+          --region eu-central-1
+
+      # Wait for the Order service to stabilize
+      - name: Wait for Order service to stabilize
+        run: |
+          aws ecs wait services-stable \
+          --cluster ${{ env.CLUSTER }} \
+          --services ${{ env.ORDER_SERVICE }} \
+          --region eu-central-1 
+
+      # Wait for the Notification service to stabilize
+      - name: Wait for Notification service to stabilize
+        run: |  
+          aws ecs wait services-stable \
+          --cluster ${{ env.CLUSTER }} \
+          --services ${{ env.NOTIFICATION_SERVICE }} \
+          --region eu-central-1
