@@ -34,6 +34,7 @@ jobs:
       - name: Deploy the First set of CloudFormation stack
         run: |
           cd cf-scripts
+          chmod +x deploy.sh
           ./deploy.sh dev
 
       # Retrieve ECR repository URIs from CloudFormation outputs
@@ -114,4 +115,5 @@ jobs:
       - name: Deploy the Second set of CloudFormation stack
         run: |
           cd cf-scripts
+          chmod +x deploy2.sh
           ./deploy2.sh dev
