@@ -34,7 +34,7 @@ echo ""
 echo "⚠️  WARNING: You are about to destroy ALL microservice stacks"
 echo "   Environment: $ENV"
 echo ""
-if [ "$AUTO" == "yes" ]; then
+if [ "$AUTO" == "--auto" ]; then
   CONFIRM="yes"
   echo "🚀 Auto-confirm enabled (CI mode)"
 else
