@@ -22,4 +22,4 @@ jobs:
         run: |
           cd cf-scripts
           chmod +x destroy.sh
-          ./destroy.sh dev
+          ./destroy.sh dev --auto
