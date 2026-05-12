@@ -44,10 +44,6 @@ STACKS=(
   "rds.yaml:microservice-rds"
   "lb.yaml:microservice-lb"
   "logging.yaml:microservice-logging"
-  "ecs.yaml:microservice-ecs"
-  "alarms.yaml:microservice-alarms"
-  "insights.yaml:microservice-insights"
-  "xrays.yaml:microservice-xrays"
 )
 
 # ============================================================
