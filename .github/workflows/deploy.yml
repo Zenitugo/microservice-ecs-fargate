@@ -37,22 +37,30 @@ jobs:
             --query "Stacks[0].Outputs[?OutputKey=='UserRepositoryUri'].OutputValue" \
             --output text)
 
+      - name: Retrieve product service repository URIs
+        run: |
           PRODUCT_ECR_URI=$(aws cloudformation describe-stacks \
             --stack-name microservice-ecr \
             --query "Stacks[0].Outputs[?OutputKey=='ProductServiceRepoUri'].OutputValue" \
             --output text)
 
+      - name: Retrieve order service repository URIs
+        run: |
           ORDER_ECR_URI=$(aws cloudformation describe-stacks \
             --stack-name microservice-ecr \
             --query "Stacks[0].Outputs[?OutputKey=='OrderServiceRepoUri'].OutputValue" \
             --output text)
 
+      - name: Retrieve notification service repository URIs
+        run: |  
           NOTIFICATION_ECR_URI=$(aws cloudformation describe-stacks \
             --stack-name microservice-ecr \
             --query "Stacks[0].Outputs[?OutputKey=='NotificationServiceRepoUri'].OutputValue" \
             --output text)
 
-      # Store the ECR repository URI in GitHub Actions environment variable
+      # Store the ECR repository URIs in GitHub Actions environment variables
+      - name: Store ECR repository URIs in environment variables
+        run: |
           echo "USER_ECR_URI=$USER_ECR_URI" >> $GITHUB_ENV
           echo "PRODUCT_ECR_URI=$PRODUCT_ECR_URI" >> $GITHUB_ENV
           echo "ORDER_ECR_URI=$ORDER_ECR_URI" >> $GITHUB_ENV
@@ -67,21 +75,31 @@ jobs:
             --query "Stacks[0].Outputs[?OutputKey=='ClusterName'].OutputValue" \
             --output text)
 
+
+      - name: Get User service information
+        run: |
           USER_SERVICE=$(aws cloudformation describe-stacks \
             --stack-name microservice-ecs \
             --query "Stacks[0].Outputs[?OutputKey=='UserEcsServiceName'].OutputValue" \
             --output text)
 
+      - name: Get Product service information
+        run: |
           PRODUCT_SERVICE=$(aws cloudformation describe-stacks \
             --stack-name microservice-ecs \
             --query "Stacks[0].Outputs[?OutputKey=='ProductEcsServiceName'].OutputValue" \
             --output text)
 
+      - name: Get Order service information
+        run: |
           ORDER_SERVICE=$(aws cloudformation describe-stacks \
             --stack-name microservice-ecs \
             --query "Stacks[0].Outputs[?OutputKey=='OrderEcsServiceName'].OutputValue" \
             --output text)
 
+
+      - name: Get Notification service information
+        run: |
           NOTIFICATION_SERVICE=$(aws cloudformation describe-stacks \
             --stack-name microservice-ecs \
             --query "Stacks[0].Outputs[?OutputKey=='NotificationEcsServiceName'].OutputValue" \
@@ -89,6 +107,8 @@ jobs:
       
 
       # Store the ECS Cluster and service information in GitHub Actions environment variable
+      - name: Store ECS Cluster and service information in environment variables
+        run: |
           echo "CLUSTER=$CLUSTER" >> $GITHUB_ENV
           echo "USER_SERVICE=$USER_SERVICE" >> $GITHUB_ENV
           echo "PRODUCT_SERVICE=$PRODUCT_SERVICE" >> $GITHUB_ENV
