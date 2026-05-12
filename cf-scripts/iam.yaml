@@ -173,26 +173,26 @@ Resources:
 
 Outputs:
   ECSTaskExceutionRole:
-    Value: !Ref ECSTaskExecutionRole
+    Value: !GetAtt ECSTaskExecutionRole.Arn
     Export:
       Name: !Sub "${Environment}-ecs-task-execution-role"
   
   NotificationTaskRole:
-    Value: !Ref NotificationTaskRole
+    Value: !GetAtt NotificationTaskRole.Arn
     Export:
       Name: !Sub "${Environment}-notification-task-role"
   UserTaskRole:
-    Value: !Ref UserServiceTaskRole
+    Value: !GetAtt UserServiceTaskRole.Arn
     Export:
       Name: !Sub "${Environment}-user-task-role"
 
   ProductTaskRole:
-    Value: !Ref ProductServiceTaskRole
+    Value: !GetAtt ProductServiceTaskRole.Arn
     Export:
       Name: !Sub "${Environment}-product-task-role"
 
   OrderTaskRole:
-    Value: !Ref OrderTaskRole
+    Value: !GetAtt OrderTaskRole.Arn
     Export:
       Name: !Sub "${Environment}-order-task-role"
 
