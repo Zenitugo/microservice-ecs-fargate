@@ -79,7 +79,8 @@ Resources:
       EngineVersion: !Ref dbengineVersion
       StorageType: !Ref storageType
       MasterUsername: !Ref dbMasterUsername
-      MasterUserPassword: !ImportValue userdb-master-password
+      MasterUserPassword: !ImportValue 
+        Fn::Sub: "${Environment}-userdb-master-password
       VPCSecurityGroups:
         - Fn::ImportValue: !Sub "${Environment}-rds-sg-id"
       DBSubnetGroupName: !Ref SubnetGroup
@@ -102,7 +103,8 @@ Resources:
       EngineVersion: !Ref dbengineVersion
       StorageType: !Ref storageType
       MasterUsername: !Ref dbMasterUsername
-      MasterUserPassword: !ImportValue productdb-master-password
+      MasterUserPassword: !ImportValue 
+        Fn::Sub: "${Environment}-productdb-master-password
       VPCSecurityGroups:
         - Fn::ImportValue: !Sub "${Environment}-rds-sg-id"
       DBSubnetGroupName: !Ref SubnetGroup
@@ -124,7 +126,8 @@ Resources:
       EngineVersion: !Ref dbengineVersion
       StorageType: !Ref storageType
       MasterUsername: !Ref dbMasterUsername
-      MasterUserPassword: !ImportValue orderdb-master-password
+      MasterUserPassword: !ImportValue 
+        Fn::Sub: "${Environment}-orderdb-master-password
       VPCSecurityGroups:
         - Fn::ImportValue: !Sub "${Environment}-rds-sg-id"
       DBSubnetGroupName: !Ref SubnetGroup
