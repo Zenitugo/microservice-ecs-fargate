@@ -77,6 +77,9 @@ Resources:
       ServiceName: !Sub "${Environment}-user-service"
       TaskDefinition: !Ref UserEcsTaskDefinition
       DesiredCount: 1
+      DeploymentConfiguration:
+        MaximumPercent: 200
+        MinimumHealthyPercent: 0
       LaunchType: FARGATE
       NetworkConfiguration:
         AwsvpcConfiguration:
@@ -143,6 +146,9 @@ Resources:
       ServiceName: !Sub "${Environment}-product-service"
       TaskDefinition: !Ref ProductEcsTaskDefinition
       DesiredCount: 1
+      DeploymentConfiguration:
+        MaximumPercent: 200
+        MinimumHealthyPercent: 0
       LaunchType: FARGATE
       NetworkConfiguration:
         AwsvpcConfiguration:
@@ -208,6 +214,9 @@ Resources:
       ServiceName: !Sub "${Environment}-order-service"
       TaskDefinition: !Ref OrderEcsTaskDefinition
       DesiredCount: 1
+      DeploymentConfiguration:
+        MaximumPercent: 200
+        MinimumHealthyPercent: 0
       LaunchType: FARGATE
       NetworkConfiguration:
         AwsvpcConfiguration:
@@ -264,6 +273,9 @@ Resources:
       Cluster: !Ref ECSCluster 
       TaskDefinition: !Ref NotificationEcsTaskDefinition
       DesiredCount: 1
+      DeploymentConfiguration:
+        MaximumPercent: 200
+        MinimumHealthyPercent: 0
       LaunchType: FARGATE
       NetworkConfiguration:          
         AwsvpcConfiguration:
