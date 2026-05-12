@@ -48,21 +48,21 @@ jobs:
         run: |
           echo "PRODUCT_ECR_URI=$(aws cloudformation describe-stacks \
             --stack-name microservice-ecr \
-            --query "Stacks[0].Outputs[?OutputKey=='ProductServiceRepoUri'].OutputValue" \
+            --query "Stacks[0].Outputs[?OutputKey=='ProductRepositoryUri'].OutputValue" \
             --output text)" >> $GITHUB_ENV
 
       - name: Retrieve order service repository URIs
         run: |
           echo "ORDER_ECR_URI=$(aws cloudformation describe-stacks \
             --stack-name microservice-ecr \
-            --query "Stacks[0].Outputs[?OutputKey=='OrderServiceRepoUri'].OutputValue" \
+            --query "Stacks[0].Outputs[?OutputKey=='OrderRepositoryUri'].OutputValue" \
             --output text)" >> $GITHUB_ENV
 
       - name: Retrieve notification service repository URIs
         run: |  
           echo "NOTIFICATION_ECR_URI=$(aws cloudformation describe-stacks \
             --stack-name microservice-ecr \
-            --query "Stacks[0].Outputs[?OutputKey=='NotificationServiceRepoUri'].OutputValue" \
+            --query "Stacks[0].Outputs[?OutputKey=='NotificationRepositoryUri'].OutputValue" \
             --output text)" >> $GITHUB_ENV
 
 
