@@ -23,6 +23,13 @@ jobs:
           aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
           aws-region: "eu-central-1"
 
+      # Validate CloudFormation templates
+      - name: Validate CloudFormation templates
+        run: |
+          cd cf-scripts
+          pip install cfn-lint
+          cfn-lint *.yaml 
+
       # Create infrastructure using CloudFormation
       - name: Deploy CloudFormation stack
         run: |
