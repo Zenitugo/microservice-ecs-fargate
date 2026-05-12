@@ -27,11 +27,11 @@ jobs:
       # - name: Validate CloudFormation templates
       #   run: |
       #     cd cf-scripts
-      #     pip install cfn-lint
+      #     pip install cfn-lint==0.87.0
       #     cfn-lint *.yaml 
 
       # Create infrastructure using CloudFormation
-      - name: Deploy CloudFormation stack
+      - name: Deploy the First set of CloudFormation stack
         run: |
           cd cf-scripts
           ./deploy.sh dev
@@ -74,54 +74,6 @@ jobs:
           echo "NOTIFICATION_ECR_URI=$NOTIFICATION_ECR_URI" >> $GITHUB_ENV
 
 
-      # Get ECS Cluster and service information
-      - name: Get ECS Cluster and service information
-        run: |
-          CLUSTER=$(aws cloudformation describe-stacks \
-            --stack-name microservice-ecs \
-            --query "Stacks[0].Outputs[?OutputKey=='ClusterName'].OutputValue" \
-            --output text)
-
-
-      - name: Get User service information
-        run: |
-          USER_SERVICE=$(aws cloudformation describe-stacks \
-            --stack-name microservice-ecs \
-            --query "Stacks[0].Outputs[?OutputKey=='UserEcsServiceName'].OutputValue" \
-            --output text)
-
-      - name: Get Product service information
-        run: |
-          PRODUCT_SERVICE=$(aws cloudformation describe-stacks \
-            --stack-name microservice-ecs \
-            --query "Stacks[0].Outputs[?OutputKey=='ProductEcsServiceName'].OutputValue" \
-            --output text)
-
-      - name: Get Order service information
-        run: |
-          ORDER_SERVICE=$(aws cloudformation describe-stacks \
-            --stack-name microservice-ecs \
-            --query "Stacks[0].Outputs[?OutputKey=='OrderEcsServiceName'].OutputValue" \
-            --output text)
-
-
-      - name: Get Notification service information
-        run: |
-          NOTIFICATION_SERVICE=$(aws cloudformation describe-stacks \
-            --stack-name microservice-ecs \
-            --query "Stacks[0].Outputs[?OutputKey=='NotificationEcsServiceName'].OutputValue" \
-            --output text)
-      
-
-      # Store the ECS Cluster and service information in GitHub Actions environment variable
-      - name: Store ECS Cluster and service information in environment variables
-        run: |
-          echo "CLUSTER=$CLUSTER" >> $GITHUB_ENV
-          echo "USER_SERVICE=$USER_SERVICE" >> $GITHUB_ENV
-          echo "PRODUCT_SERVICE=$PRODUCT_SERVICE" >> $GITHUB_ENV
-          echo "ORDER_SERVICE=$ORDER_SERVICE" >> $GITHUB_ENV
-          echo "NOTIFICATION_SERVICE=$NOTIFICATION_SERVICE" >> $GITHUB_ENV
-
       # Login to AWS ECR
       - name: Login to AWS ECR
         run: |
@@ -160,71 +112,14 @@ jobs:
           docker push $NOTIFICATION_ECR_URI:latest
 
 
-      # Update ECS services to use User service image
-      - name: Update ECS services with the user service image
+      # Docker images needs to be pushed to ECR before creating the ECS services,
+      # otherwise the CloudFormation stack creation will fail due to missing images. 
+      # Therefore, we are deploying the infrastructure in two steps. In the first step, we create some of  the infrastructre, 
+      #and in the second step, we create the ECS services after pushing the Docker images to ECR.
+
+
+      # Continue creating  infrastructure using CloudFormation
+      - name: Deploy the Second set of CloudFormation stack
         run: |
-          aws ecs update-service \
-          --cluster ${{ env.CLUSTER }} \
-          --service ${{ env.USER_SERVICE }} \
-          --force-new-deployment \
-          --region eu-central-1
-
-
-      # Update ECS services to use Product service image
-      - name: Update ECS services with the product service image
-        run: |
-          aws ecs update-service \
-          --cluster ${{ env.CLUSTER }} \
-          --service ${{ env.PRODUCT_SERVICE }} \
-          --force-new-deployment \
-          --region eu-central-1
-
-      # Update ECS services to use Order service image
-      - name: Update ECS services with the order service image
-        run: |
-          aws ecs update-service \
-          --cluster ${{ env.CLUSTER }} \
-          --service ${{ env.ORDER_SERVICE }} \
-          --force-new-deployment \
-          --region eu-central-1
-
-      # Update ECS services to use Notification service image
-      - name: Update ECS services with the notification service image
-        run: |
-          aws ecs update-service \
-          --cluster ${{ env.CLUSTER }} \
-          --service ${{ env.NOTIFICATION_SERVICE }} \
-          --force-new-deployment \
-          --region eu-central-1
-
-     # Wait for the User service to stabilize
-      - name: Wait for User service to stabilize
-        run: |
-          aws ecs wait services-stable \
-          --cluster ${{ env.CLUSTER }} \
-          --services ${{ env.USER_SERVICE }} \
-          --region eu-central-1
-
-      # Wait for the Product service to stabilize
-      - name: Wait for Product service to stabilize
-        run: |  
-          aws ecs wait services-stable \
-          --cluster ${{ env.CLUSTER }} \
-          --services ${{ env.PRODUCT_SERVICE }} \
-          --region eu-central-1
-
-      # Wait for the Order service to stabilize
-      - name: Wait for Order service to stabilize
-        run: |
-          aws ecs wait services-stable \
-          --cluster ${{ env.CLUSTER }} \
-          --services ${{ env.ORDER_SERVICE }} \
-          --region eu-central-1 
-
-      # Wait for the Notification service to stabilize
-      - name: Wait for Notification service to stabilize
-        run: |  
-          aws ecs wait services-stable \
-          --cluster ${{ env.CLUSTER }} \
-          --services ${{ env.NOTIFICATION_SERVICE }} \
-          --region eu-central-1
+          cd cf-scripts
+          ./deploy2.sh dev
