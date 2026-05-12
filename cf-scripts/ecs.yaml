@@ -132,13 +132,13 @@ Resources:
             - Name: DB_PASSWORD
               ValueFrom: !ImportValue productdb-master-password
 
-            - DB_USER:
+            - Name: DB_USER
               Value: dbadmin
 
-            - DB_NAME:
+            - NAME: DB_NAME
               Value: productdb
 
-            - DB_PORT:
+            - Name: DB_PORT
               Value: 5432
 
             - Name: DB_HOST
