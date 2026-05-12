@@ -54,13 +54,20 @@ Resources:
               Protocol: tcp
           Environment:
             - Name: DB_PASSWORD
-              ValueFrom: !ImportValue: userdb-master-password
+              ValueFrom: !ImportValue userdb-master-password
+
             - Name: AWS_REGION
               Value: !Ref Region
+
             - Name: DB_USER
               Value: dbadmin
+
+            - Name: DB_NAME
+              Value: userdb
+
             - Name: DB_PORT
               Value: 5432
+
             - Name: DB_HOST
               Value: 
                 Fn::ImportValue: userdb-endpoint
@@ -123,16 +130,23 @@ Resources:
               Protocol: tcp
           Environment:
             - Name: DB_PASSWORD
-              ValueFrom: !ImportValue: productdb-master-password
-            - Name: Region
-              Value: !Ref Region
+              ValueFrom: !ImportValue productdb-master-password
+
             - DB_USER:
               Value: dbadmin
+
+            - DB_NAME:
+              Value: productdb
+
             - DB_PORT:
               Value: 5432
+
             - Name: DB_HOST
               Value:
-                Fn::ImportValue: productdb-endpoint           
+                Fn::ImportValue: productdb-endpoint    
+
+            - Name: Region
+              Value: !Ref Region       
           LogConfiguration:
             LogDriver: awslogs
             Options:
@@ -189,14 +203,21 @@ Resources:
               HostPort: 3003
               Protocol: tcp
           Environment:
-            - Name: ORDER_DB_SECRET_ARN
-              ValueFrom: !ImportValue: orderdb-master-password
+            - Name: DB_PASSWORD
+              ValueFrom: !ImportValue orderdb-master-password
+
             - Name: AWS_REGION
-              Value: !Ref Region 
+              Value: !Ref Region
+
             - Name: DB_USER
               Value: dbadmin
+
+            - Name: DB_NAME
+              Value: orderdb
+
             - Name: DB_PORT
               Value: 5432
+
             - Name: DB_HOST
               Value: 
                 Fn::ImportValue: orderdb-endpoint
@@ -257,6 +278,13 @@ Resources:
             - ContainerPort: 3004
               HostPort: 3004
               Protocol: tcp
+          Environment:
+            - Name: SQS_QUEUE_URL
+              Value: !ImportValue
+                Fn::Sub: "${Environment}-SQSQueueURL"
+            
+            - Name: Region
+              Value: !Ref Region
           LogConfiguration:
             LogDriver: awslogs
             Options:
