@@ -1,5 +1,5 @@
 name: Deploy a three tier application to AWS ECS Fargate using GitHub Actions
-on:
+#on:
   push:
     branches: [ master ]
 jobs:
