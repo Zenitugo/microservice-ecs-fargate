@@ -54,7 +54,7 @@ Resources:
               Protocol: tcp
           Environment:
             - Name: DB_PASSWORD
-              ValueFrom: !ImportValue userdb-master-password
+              ValueFrom: !ImportValue !Sub "${Environment}-userdb-master-password
 
             - Name: AWS_REGION
               Value: !Ref Region
@@ -130,7 +130,7 @@ Resources:
               Protocol: tcp
           Environment:
             - Name: DB_PASSWORD
-              ValueFrom: !ImportValue productdb-master-password
+              ValueFrom: !ImportValue !Sub "${Environment}-productdb-master-password"
 
             - Name: DB_USER
               Value: dbadmin
@@ -204,7 +204,7 @@ Resources:
               Protocol: tcp
           Environment:
             - Name: DB_PASSWORD
-              ValueFrom: !ImportValue orderdb-master-password
+              ValueFrom: !ImportValue !Sub "${Environment}-orderdb-master-password
 
             - Name: AWS_REGION
               Value: !Ref Region
@@ -299,9 +299,6 @@ Resources:
       Cluster: !Ref ECSCluster 
       TaskDefinition: !Ref NotificationEcsTaskDefinition
       DesiredCount: 1
-      DeploymentConfiguration:
-        MaximumPercent: 200
-        MinimumHealthyPercent: 0
       LaunchType: FARGATE
       NetworkConfiguration:          
         AwsvpcConfiguration:
