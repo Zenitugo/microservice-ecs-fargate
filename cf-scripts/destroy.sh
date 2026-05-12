@@ -10,6 +10,7 @@
 # ============================================================
 
 ENV=${1}
+AUTO=${2}
 
 # Validate environment argument was provided
 if [ -z "$ENV" ]; then
@@ -33,7 +34,12 @@ echo ""
 echo "⚠️  WARNING: You are about to destroy ALL microservice stacks"
 echo "   Environment: $ENV"
 echo ""
-read -p "Are you sure you want to continue? (yes/no): " CONFIRM
+if [ "$AUTO" == "yes" ]; then
+  CONFIRM="yes"
+  echo "🚀 Auto-confirm enabled (CI mode)"
+else
+  read -p "Are you sure you want to continue? (yes/no): " CONFIRM
+fi
 
 if [ "$CONFIRM" != "yes" ]; then
   echo "Destroy cancelled."
