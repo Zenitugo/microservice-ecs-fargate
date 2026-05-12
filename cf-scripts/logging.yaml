@@ -62,3 +62,26 @@ Resources:
           Value: !Ref Environment
 
 
+Outputs:
+  UserServiceLogGroupName:
+    Description: Log group name for user service
+    Value: !Ref UserServiceLogGroup
+    Export:
+      Name: !Sub "${Environment}-user-service-log-group-name"
+  ProductServiceLogGroupName:
+    Description: Log group name for product service
+    Value: !Ref ProductServiceLogGroup
+    Export:
+      Name: !Sub "${Environment}-product-service-log-group-name"
+
+  OrderServiceLogGroupName:
+    Description: Log group name for order service
+    Value: !Ref OrderServiceLogGroup
+    Export:
+      Name: !Sub "${Environment}-order-service-log-group-name"
+
+  NotificationServiceLogGroupName:
+    Description: Log group name for notification service
+    Value: !Ref NotificationServiceLogGroup
+    Export:
+      Name: !Sub "${Environment}-notification-service-log-group-name"
