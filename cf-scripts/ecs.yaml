@@ -53,11 +53,14 @@ Resources:
               HostPort: 3001
               Protocol: tcp
           Environment:
-            - Name: USER_DB_SECRET
-              Value: 
-                Fn::ImportValue: userdb-master-password
+            - Name: DB_PASSWORD
+              ValueFrom: !ImportValue: userdb-master-password
             - Name: AWS_REGION
               Value: !Ref Region
+            - Name: DB_USER
+              Value: dbadmin
+            - Name: DB_PORT
+              Value: 5432
             - Name: DB_HOST
               Value: 
                 Fn::ImportValue: userdb-endpoint
@@ -76,10 +79,6 @@ Resources:
       Cluster: !Ref ECSCluster
       ServiceName: !Sub "${Environment}-user-service"
       TaskDefinition: !Ref UserEcsTaskDefinition
-      DesiredCount: 1
-      DeploymentConfiguration:
-        MaximumPercent: 200
-        MinimumHealthyPercent: 0
       LaunchType: FARGATE
       NetworkConfiguration:
         AwsvpcConfiguration:
@@ -123,11 +122,14 @@ Resources:
               HostPort: 3002
               Protocol: tcp
           Environment:
-            - Name: PRODUCT_DB_SECRET_ARN
-              Value:
-                Fn::ImportValue: productdb-master-password
+            - Name: DB_PASSWORD
+              ValueFrom: !ImportValue: productdb-master-password
             - Name: Region
               Value: !Ref Region
+            - DB_USER:
+              Value: dbadmin
+            - DB_PORT:
+              Value: 5432
             - Name: DB_HOST
               Value:
                 Fn::ImportValue: productdb-endpoint           
@@ -145,10 +147,6 @@ Resources:
       Cluster: !Ref ECSCluster
       ServiceName: !Sub "${Environment}-product-service"
       TaskDefinition: !Ref ProductEcsTaskDefinition
-      DesiredCount: 1
-      DeploymentConfiguration:
-        MaximumPercent: 200
-        MinimumHealthyPercent: 0
       LaunchType: FARGATE
       NetworkConfiguration:
         AwsvpcConfiguration:
@@ -192,10 +190,13 @@ Resources:
               Protocol: tcp
           Environment:
             - Name: ORDER_DB_SECRET_ARN
-              Value: 
-                Fn::ImportValue: orderdb-master-password
+              ValueFrom: !ImportValue: orderdb-master-password
             - Name: AWS_REGION
               Value: !Ref Region 
+            - Name: DB_USER
+              Value: dbadmin
+            - Name: DB_PORT
+              Value: 5432
             - Name: DB_HOST
               Value: 
                 Fn::ImportValue: orderdb-endpoint
@@ -214,9 +215,6 @@ Resources:
       ServiceName: !Sub "${Environment}-order-service"
       TaskDefinition: !Ref OrderEcsTaskDefinition
       DesiredCount: 1
-      DeploymentConfiguration:
-        MaximumPercent: 200
-        MinimumHealthyPercent: 0
       LaunchType: FARGATE
       NetworkConfiguration:
         AwsvpcConfiguration:
