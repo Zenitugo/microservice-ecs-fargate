@@ -39,39 +39,31 @@ jobs:
       # Retrieve ECR repository URIs from CloudFormation outputs
       - name: Retrieve user service repository URIs
         run: |
-          USER_ECR_URI=$(aws cloudformation describe-stacks \
+          echo "USER_ECR_URI=$(aws cloudformation describe-stacks \
             --stack-name microservice-ecr \
             --query "Stacks[0].Outputs[?OutputKey=='UserRepositoryUri'].OutputValue" \
-            --output text)
+            --output text)" >> $GITHUB_ENV
 
       - name: Retrieve product service repository URIs
         run: |
-          PRODUCT_ECR_URI=$(aws cloudformation describe-stacks \
+          echo "PRODUCT_ECR_URI=$(aws cloudformation describe-stacks \
             --stack-name microservice-ecr \
             --query "Stacks[0].Outputs[?OutputKey=='ProductServiceRepoUri'].OutputValue" \
-            --output text)
+            --output text)" >> $GITHUB_ENV
 
       - name: Retrieve order service repository URIs
         run: |
-          ORDER_ECR_URI=$(aws cloudformation describe-stacks \
+          echo "ORDER_ECR_URI=$(aws cloudformation describe-stacks \
             --stack-name microservice-ecr \
             --query "Stacks[0].Outputs[?OutputKey=='OrderServiceRepoUri'].OutputValue" \
-            --output text)
+            --output text)" >> $GITHUB_ENV
 
       - name: Retrieve notification service repository URIs
         run: |  
-          NOTIFICATION_ECR_URI=$(aws cloudformation describe-stacks \
+          echo "NOTIFICATION_ECR_URI=$(aws cloudformation describe-stacks \
             --stack-name microservice-ecr \
             --query "Stacks[0].Outputs[?OutputKey=='NotificationServiceRepoUri'].OutputValue" \
-            --output text)
-
-      # Store the ECR repository URIs in GitHub Actions environment variables
-      - name: Store ECR repository URIs in environment variables
-        run: |
-          echo "USER_ECR_URI=$USER_ECR_URI" >> $GITHUB_ENV
-          echo "PRODUCT_ECR_URI=$PRODUCT_ECR_URI" >> $GITHUB_ENV
-          echo "ORDER_ECR_URI=$ORDER_ECR_URI" >> $GITHUB_ENV
-          echo "NOTIFICATION_ECR_URI=$NOTIFICATION_ECR_URI" >> $GITHUB_ENV
+            --output text)" >> $GITHUB_ENV
 
 
       # Login to AWS ECR
