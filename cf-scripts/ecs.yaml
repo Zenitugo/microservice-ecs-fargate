@@ -53,10 +53,6 @@ Resources:
               HostPort: 3001
               Protocol: tcp
           Environment:
-            - Name: DB_PASSWORD
-              ValueFrom:
-                Fn::ImportValue: !Sub "${UserRDSInstance.MasterUserSecret.SecretArn}:password::"
-
             - Name: AWS_REGION
               Value: !Ref Region
 
@@ -72,6 +68,12 @@ Resources:
             - Name: DB_HOST
               Value: 
                 Fn::ImportValue: userdb-endpoint
+          Secrets:
+            - Name: DB_PASSWORD
+              ValueFrom: !Sub
+                - "${SecretArn}:password::"
+                - SecretArn: !ImportValue
+                Fn::Sub: "${Environment}-userdb-master-secret-arn
           LogConfiguration:
             LogDriver: awslogs
             Options:
@@ -130,10 +132,6 @@ Resources:
               HostPort: 3002
               Protocol: tcp
           Environment:
-            - Name: DB_PASSWORD
-              ValueFrom:
-                Fn::ImportValue: !Sub "${ProductRDSInstance.MasterUserSecret.SecretArn}:password::"
-
             - Name: DB_USER
               Value: dbadmin
 
@@ -148,7 +146,13 @@ Resources:
                 Fn::ImportValue: productdb-endpoint    
 
             - Name: Region
-              Value: !Ref Region       
+              Value: !Ref Region
+          Secrets:
+            - Name: DB_PASSWORD
+              ValueFrom: !Sub
+                - "${SecretArn}:password::"
+                - SecretArn: !ImportValue
+                Fn::Sub: "${Environment}-productdb-master-secret-arn
           LogConfiguration:
             LogDriver: awslogs
             Options:
@@ -205,10 +209,6 @@ Resources:
               HostPort: 3003
               Protocol: tcp
           Environment:
-            - Name: DB_PASSWORD
-              ValueFrom:
-                Fn::ImportValue: !Sub "${OrderRDSInstance.MasterUserSecret.SecretArn}:password::"
-
             - Name: AWS_REGION
               Value: !Ref Region
 
@@ -224,6 +224,12 @@ Resources:
             - Name: DB_HOST
               Value: 
                 Fn::ImportValue: orderdb-endpoint
+          Secrets:
+            - Name: DB_PASSWORD
+              ValueFrom: !Sub
+                - "${SecretArn}:password::"
+                - SecretArn: !ImportValue
+                Fn::Sub: "${Environment}-orderdb-master-secret-arn
           LogConfiguration:
             LogDriver: awslogs
             Options:
