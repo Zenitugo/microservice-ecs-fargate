@@ -54,7 +54,8 @@ Resources:
               Protocol: tcp
           Environment:
             - Name: DB_PASSWORD
-              ValueFrom: !ImportValue !Sub "${Environment}-userdb-master-password
+              ValueFrom:
+                Fn:: ImportValue: !Sub "${Environment}-userdb-master-password"
 
             - Name: AWS_REGION
               Value: !Ref Region
@@ -130,7 +131,8 @@ Resources:
               Protocol: tcp
           Environment:
             - Name: DB_PASSWORD
-              ValueFrom: !ImportValue !Sub "${Environment}-productdb-master-password"
+              ValueFrom:
+                Fn:: ImportValue: !Sub "${Environment}-productdb-master-password"
 
             - Name: DB_USER
               Value: dbadmin
@@ -204,7 +206,8 @@ Resources:
               Protocol: tcp
           Environment:
             - Name: DB_PASSWORD
-              ValueFrom: !ImportValue !Sub "${Environment}-orderdb-master-password
+              ValueFrom:
+                Fn:: ImportValue: !Sub "${Environment}-orderdb-master-password"
 
             - Name: AWS_REGION
               Value: !Ref Region
