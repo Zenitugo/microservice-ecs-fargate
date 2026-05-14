@@ -91,7 +91,7 @@ Resources:
                   - secretsmanager:GetSecretValue
                 Resource:
                   - !ImportValue 
-                    Fn::Sub: "${Environment}-orderdb-master-password-arn"
+                    Fn::Sub: "${Environment}-orderdb-master-secret-arn"
                 
       Tags:
         - Key: Environment
@@ -120,7 +120,7 @@ Resources:
                   - secretsmanager:GetSecretValue
                 Resource:
                   - !ImportValue 
-                    Fn::Sub: "${Environment}-productdb-master-password-arn"
+                    Fn::Sub: "${Environment}-productdb-master-secret-arn"
 
       Tags:
         - Key: Environment
@@ -150,7 +150,7 @@ Resources:
                   - secretsmanager:GetSecretValue
                 Resource:
                   - !ImportValue
-                    Fn::Sub: "${Environment}-userdb-master-password-arn"
+                    Fn::Sub: "${Environment}-userdb-master-secret-arn"
 
       Tags:
         - Key: Environment
@@ -169,11 +169,11 @@ Resources:
               - secretsmanager:GetSecretValue
             Resource: 
               - !ImportValue 
-                Fn::Sub: "${Environment}-userdb-master-password-arn"
+                Fn::Sub: "${Environment}-userdb-master-secret-arn"
               - !ImportValue 
-                Fn::Sub: "${Environment}-orderdb-master-password-arn"
+                Fn::Sub: "${Environment}-orderdb-master-secret-arn"
               - !ImportValue 
-                Fn::Sub: "${Environment}-productdb-master-password-arn"
+                Fn::Sub: "${Environment}-productdb-master-secret-arn"
 
 
 
