@@ -55,7 +55,7 @@ Resources:
           Environment:
             - Name: DB_PASSWORD
               ValueFrom:
-                Fn:: ImportValue: !Sub "${Environment}-userdb-master-password"
+                Fn:: ImportValue: !Sub "${UserRDSInstance.MasterUserSecret.SecretArn}:password::"
 
             - Name: AWS_REGION
               Value: !Ref Region
@@ -132,7 +132,7 @@ Resources:
           Environment:
             - Name: DB_PASSWORD
               ValueFrom:
-                Fn:: ImportValue: !Sub "${Environment}-productdb-master-password"
+                Fn:: ImportValue: !Sub "${ProductRDSInstance.MasterUserSecret.SecretArn}:password::"
 
             - Name: DB_USER
               Value: dbadmin
@@ -207,7 +207,7 @@ Resources:
           Environment:
             - Name: DB_PASSWORD
               ValueFrom:
-                Fn:: ImportValue: !Sub "${Environment}-orderdb-master-password"
+                Fn:: ImportValue: !Sub "${OrderRDSInstance.MasterUserSecret.SecretArn}:password::"
 
             - Name: AWS_REGION
               Value: !Ref Region
