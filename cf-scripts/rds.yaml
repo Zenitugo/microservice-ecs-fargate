@@ -79,7 +79,7 @@ Resources:
       EngineVersion: !Ref dbengineVersion
       StorageType: !Ref storageType
       MasterUsername: !Ref dbMasterUsername
-      MasterUserPassword: !Sub "{{resolve:secretsmanager:${Environment}-userdb-master-password:SecretString:password}}"
+      ManageMasterUserPassword: true
       VPCSecurityGroups:
         - Fn::ImportValue: !Sub "${Environment}-rds-sg-id"
       DBSubnetGroupName: !Ref SubnetGroup
@@ -102,7 +102,7 @@ Resources:
       EngineVersion: !Ref dbengineVersion
       StorageType: !Ref storageType
       MasterUsername: !Ref dbMasterUsername
-      MasterUserPassword: !Sub "{{resolve:secretsmanager:${Environment}-productdb-master-password:SecretString:password}}"
+      ManageMasterUserPassword: true
       VPCSecurityGroups:
         - Fn::ImportValue: !Sub "${Environment}-rds-sg-id"
       DBSubnetGroupName: !Ref SubnetGroup
@@ -124,7 +124,7 @@ Resources:
       EngineVersion: !Ref dbengineVersion
       StorageType: !Ref storageType
       MasterUsername: !Ref dbMasterUsername
-      MasterUserPassword: !Sub "{{resolve:secretsmanager:${Environment}-orderdb-master-password:SecretString:password}}"
+      ManageMasterUserPassword: true
       VPCSecurityGroups:
         - Fn::ImportValue: !Sub "${Environment}-rds-sg-id"
       DBSubnetGroupName: !Ref SubnetGroup
@@ -171,3 +171,19 @@ Outputs:
     Value: !Ref OrderRDSInstance
     Export:
       Name: !Sub "${dbName2}-identifier"
+
+  UserDBSecretArn:
+    Value: !GetAtt UserRDSInstance.MasterUserSecret.SecretArn
+    Export:
+      Name: !Sub "${Environment}-userdb-master-secret-arn"
+     
+  ProductDBSecretArn:
+    Value: !GetAtt ProductRDSInstance.MasterUserSecret.SecretArn
+    Export:
+      Name: !Sub "${Environment}-productdb-master-secret-arn"
+     
+  OrderDBSecretArn:
+    Value: !GetAtt OrderRDSInstance.MasterUserSecret.SecretArn
+    Export:
+      Name: !Sub "${Environment}-orderdb-master-secret-arn"
+     
