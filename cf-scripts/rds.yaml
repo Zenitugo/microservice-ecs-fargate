@@ -56,6 +56,9 @@ Parameters:
     Type: String
     Default: dbadmin
     Description: Master username for RDS instance
+  Family:
+    Type: String
+    Default: postgres16
   
 Resources:
 
@@ -67,11 +70,20 @@ Resources:
       SubnetIds:
         - Fn::ImportValue: !Sub "${Environment}-private-subnet-1-id"
         - Fn::ImportValue: !Sub "${Environment}-private-subnet-2-id"
+
+  RDSParameterGroup:
+    Type: AWS::RDS::DBParameterGroup
+    Properties:
+      Family: !Ref Family
+      Description: Custom parameter group
+      Parameters:
+        rds.force_ssl: "0"    # ← disables SSL requirement
   
   UserRDSInstance:
     Type: AWS::RDS::DBInstance
     Properties:
       DBInstanceIdentifier: !Sub "${Environment}-userdb-instance"
+      DBParameterGroupName: !Ref RDSParameterGroup
       AllocatedStorage: !Ref allocatedStorage
       DBInstanceClass: !Ref dbInstanceClass
       DBName: !Ref dbName1
@@ -95,6 +107,7 @@ Resources:
     Type: AWS::RDS::DBInstance
     Properties:
       DBInstanceIdentifier: !Sub "${Environment}-productdb-instance"
+      DBParameterGroupName: !Ref RDSParameterGroup
       AllocatedStorage: !Ref allocatedStorage
       DBInstanceClass: !Ref dbInstanceClass
       DBName: !Ref dbName3
@@ -117,6 +130,7 @@ Resources:
     Type: AWS::RDS::DBInstance
     Properties:
       DBInstanceIdentifier: !Sub "${Environment}-orderdb-instance"
+      DBParameterGroupName: !Ref RDSParameterGroup
       AllocatedStorage: !Ref allocatedStorage
       DBInstanceClass: !Ref dbInstanceClass
       DBName: !Ref dbName2
