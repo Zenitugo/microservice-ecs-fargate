@@ -79,8 +79,7 @@ Resources:
       EngineVersion: !Ref dbengineVersion
       StorageType: !Ref storageType
       MasterUsername: !Ref dbMasterUsername
-      MasterUserPassword: !ImportValue 
-        Fn::Sub: "${Environment}-userdb-master-password
+      MasterUserPassword: !Sub "{{resolve:secretsmanager:${Environment}-userdb-master-password:SecretString:password}}"
       VPCSecurityGroups:
         - Fn::ImportValue: !Sub "${Environment}-rds-sg-id"
       DBSubnetGroupName: !Ref SubnetGroup
@@ -103,8 +102,7 @@ Resources:
       EngineVersion: !Ref dbengineVersion
       StorageType: !Ref storageType
       MasterUsername: !Ref dbMasterUsername
-      MasterUserPassword: !ImportValue 
-        Fn::Sub: "${Environment}-productdb-master-password
+      MasterUserPassword: !Sub "{{resolve:secretsmanager:${Environment}-productdb-master-password:SecretString:password}}"
       VPCSecurityGroups:
         - Fn::ImportValue: !Sub "${Environment}-rds-sg-id"
       DBSubnetGroupName: !Ref SubnetGroup
@@ -126,8 +124,7 @@ Resources:
       EngineVersion: !Ref dbengineVersion
       StorageType: !Ref storageType
       MasterUsername: !Ref dbMasterUsername
-      MasterUserPassword: !ImportValue 
-        Fn::Sub: "${Environment}-orderdb-master-password
+      MasterUserPassword: !Sub "{{resolve:secretsmanager:${Environment}-orderdb-master-password:SecretString:password}}"
       VPCSecurityGroups:
         - Fn::ImportValue: !Sub "${Environment}-rds-sg-id"
       DBSubnetGroupName: !Ref SubnetGroup
