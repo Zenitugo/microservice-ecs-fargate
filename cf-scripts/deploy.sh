@@ -40,8 +40,8 @@ STACKS=(
   "ecr.yaml:microservice-ecr"
   "secrets.yaml:microservice-secrets"
   "sqs.yaml:microservice-sqs"
-  "iam.yaml:microservice-iam"
   "rds.yaml:microservice-rds"
+  "iam.yaml:microservice-iam"
   "lb.yaml:microservice-lb"
   "logging.yaml:microservice-logging"
 )
