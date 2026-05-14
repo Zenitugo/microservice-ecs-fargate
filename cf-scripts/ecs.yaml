@@ -73,7 +73,7 @@ Resources:
               ValueFrom: !Sub
                 - "${SecretArn}:password::"
                 - SecretArn: !ImportValue
-                    Fn::Sub: "${Environment}-userdb-master-secret-arn
+                    Fn::Sub: "${Environment}-userdb-master-secret-arn"
           LogConfiguration:
             LogDriver: awslogs
             Options:
@@ -152,7 +152,7 @@ Resources:
               ValueFrom: !Sub
                 - "${SecretArn}:password::"
                 - SecretArn: !ImportValue
-                    Fn::Sub: "${Environment}-productdb-master-secret-arn
+                    Fn::Sub: "${Environment}-productdb-master-secret-arn"
           LogConfiguration:
             LogDriver: awslogs
             Options:
@@ -229,7 +229,7 @@ Resources:
               ValueFrom: !Sub
                 - "${SecretArn}:password::"
                 - SecretArn: !ImportValue
-                    Fn::Sub: "${Environment}-orderdb-master-secret-arn
+                    Fn::Sub: "${Environment}-orderdb-master-secret-arn"
           LogConfiguration:
             LogDriver: awslogs
             Options:
