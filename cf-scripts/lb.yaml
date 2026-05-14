@@ -89,7 +89,7 @@ Resources:
       TargetType: ip
       VpcId: !ImportValue
         Fn::Sub: "${Environment}-vpc-id"
-      HealthCheckPath: /users/health
+      HealthCheckPath: /health
       HealthCheckIntervalSeconds: 30 
 
   UserServiceListenerRule:
@@ -115,7 +115,7 @@ Resources:
       TargetType: ip
       VpcId: !ImportValue
         Fn::Sub: "${Environment}-vpc-id"
-      HealthCheckPath: /products/health
+      HealthCheckPath: /health
       HealthCheckIntervalSeconds: 30 
 
   ProductServiceListenerRule:
@@ -141,7 +141,7 @@ Resources:
       TargetType: ip
       VpcId: !ImportValue
         Fn::Sub: "${Environment}-vpc-id"
-      HealthCheckPath: /orders/health
+      HealthCheckPath: /health
       HealthCheckIntervalSeconds: 30
 
 
