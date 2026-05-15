@@ -1,4 +1,4 @@
-name: Destroy Notestack Infrastructure
+name: Destroy Microservice Infrastructure
 
 on:
   workflow_dispatch: # Manual trigger 
