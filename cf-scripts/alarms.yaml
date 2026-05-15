@@ -216,7 +216,7 @@ Resources:
       Dimensions:
         - Name: DBInstanceIdentifier
           Value: !ImportValue
-            Fn::Sub: "${Environment}-user-rds-identifier"
+            Fn::Sub: "${Environment}-userdb-identifier"
       Statistic: Average
       Period: 300
       EvaluationPeriods: 2
@@ -237,7 +237,7 @@ Resources:
       Dimensions:
         - Name: DBInstanceIdentifier
           Value: !ImportValue
-            Fn::Sub: "${Environment}-user-rds-identifier"
+            Fn::Sub: "${Environment}-userdb-identifier"
       Statistic: Average
       Period: 300
       EvaluationPeriods: 2
@@ -260,7 +260,7 @@ Resources:
       Dimensions:
         - Name: DBInstanceIdentifier
           Value: !ImportValue
-            Fn::Sub: "${Environment}-product-rds-identifier"
+            Fn::Sub: "${Environment}-productdb-identifier"
       Statistic: Average
       Period: 300
       EvaluationPeriods: 2
@@ -281,7 +281,7 @@ Resources:
       Dimensions:
         - Name: DBInstanceIdentifier
           Value: !ImportValue
-            Fn::Sub: "${Environment}-product-rds-identifier"
+            Fn::Sub: "${Environment}-productdb-identifier"
       Statistic: Average
       Period: 300
       EvaluationPeriods: 2
@@ -303,7 +303,7 @@ Resources:
       Dimensions:
         - Name: DBInstanceIdentifier
           Value: !ImportValue
-            Fn::Sub: "${Environment}-order-rds-identifier"
+            Fn::Sub: "${Environment}-orderdb-identifier"
       Statistic: Average
       Period: 300
       EvaluationPeriods: 2
@@ -324,7 +324,7 @@ Resources:
       Dimensions:
         - Name: DBInstanceIdentifier
           Value: !ImportValue
-            Fn::Sub: "${Environment}-order-rds-identifier"
+            Fn::Sub: "${Environment}-orderdb-identifier"
       Statistic: Average
       Period: 300
       EvaluationPeriods: 2
