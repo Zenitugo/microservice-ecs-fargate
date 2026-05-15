@@ -172,19 +172,19 @@ Outputs:
     Description: DB instance identifier for user RDS instance
     Value: !Ref UserRDSInstance
     Export:
-      Name: !Sub "${dbName1}-identifier"
+      Name: !Sub "${Environment}-${dbName1}-identifier"
 
   ProductDBIdentifier:
     Description: DB instance identifier for product RDS instance
     Value: !Ref ProductRDSInstance
     Export: 
-      Name: !Sub "${dbName3}-identifier"
+      Name: !Sub "${Environment}-${dbName3}-identifier"
 
   OrderDBIdentifier: 
     Description: DB instance identifier for order RDS instance
     Value: !Ref OrderRDSInstance
     Export:
-      Name: !Sub "${dbName2}-identifier"
+      Name: !Sub "${Environment}-${dbName2}-identifier"
 
   UserDBSecretArn:
     Value: !GetAtt UserRDSInstance.MasterUserSecret.SecretArn
