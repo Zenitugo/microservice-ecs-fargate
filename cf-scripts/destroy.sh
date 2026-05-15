@@ -11,6 +11,9 @@
 
 ENV=${1}
 AUTO=${2}
+REPOS=$(aws ecr describe-repositories \
+  --query 'repositories[].repositoryName' \
+  --output text 2>/dev/null)
 
 # Validate environment argument was provided
 if [ -z "$ENV" ]; then
@@ -51,6 +54,23 @@ echo "==========================================="
 echo " Destroying all stacks in: $ENV"
 echo " Deleting in reverse order..."
 echo "==========================================="
+
+
+# ============================================================
+# CLEAN UP ECR FIRST (must delete images before CFN removes repo)
+# ============================================================
+
+echo ""
+echo "🧹 Cleaning up ECR repositories..."
+
+if [ ! -z "$REPOS" ]; then
+  for REPO in $REPOS; do
+    echo "Deleting ECR repo: $REPO"
+    aws ecr delete-repository --repository-name "$REPO" --force || true
+  done
+else
+  echo "No ECR repositories found."
+fi
 
 # ============================================================
 # STACK LIST - in REVERSE deployment order
