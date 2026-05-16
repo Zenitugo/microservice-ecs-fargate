@@ -30,6 +30,10 @@ jobs:
       #     pip install cfn-lint==0.87.0
       #     cfn-lint *.yaml 
 
+      # deploy.yml and destroy.yml - add as first step in every job
+      - name: Mask AWS Account ID
+        run: echo "::add-mask::${{ secrets.AWS_ACCOUNT_ID }}"
+
       # Create infrastructure using CloudFormation
       - name: Deploy the First set of CloudFormation stack
         run: |
