@@ -86,7 +86,7 @@ STACKS=(
   "microservice-iam"
   "microservice-rds"
   "microservice-sqs"
-  "microservice-secrets"
+  "microservice-servicediscovery"
   "microservice-ecr"
   "microservice-sg"
   "microservice-network"
