@@ -1,0 +1,189 @@
+AWSTemplateFormatVersion: "2010-09-09"
+
+Description: Service Discovery stack for microservices project - AWS Cloud Map private DNS namespace and service registries
+
+Parameters:
+  Environment:
+    Type: String
+    Default: dev
+    AllowedValues:
+      - dev
+      - staging
+      - prod
+    Description: Environment name used to tag and name all resources
+
+
+Resources:
+
+  # ============================================================
+  # PRIVATE DNS NAMESPACE
+  # Creates an internal domain: dev.local
+  # Services inside the VPC can reach each other using:
+  # user-service.dev.local
+  # product-service.dev.local
+  # order-service.dev.local
+  # notification-service.dev.local
+  # ============================================================
+  ServiceDiscoveryNamespace:
+    Type: AWS::ServiceDiscovery::PrivateDnsNamespace
+    Properties:
+      Name: !Sub "${Environment}.local"
+      Vpc: !ImportValue
+        Fn::Sub: "${Environment}-vpc-id"
+      Description: !Sub "Private DNS namespace for ${Environment} microservices"
+      Tags:
+        - Key: Environment
+          Value: !Ref Environment
+
+
+  # ============================================================
+  # USER SERVICE DISCOVERY
+  # DNS: user-service.dev.local:3001
+  # ============================================================
+  UserServiceDiscovery:
+    Type: AWS::ServiceDiscovery::Service
+    Properties:
+      Name: user-service
+      NamespaceId: !Ref ServiceDiscoveryNamespace
+      Description: Service discovery for user service
+      DnsConfig:
+        RoutingPolicy: MULTIVALUE
+        DnsRecords:
+          - Type: A
+            TTL: 60
+      HealthCheckCustomConfig:
+        FailureThreshold: 1
+      Tags:
+        - Key: Environment
+          Value: !Ref Environment
+
+
+  # ============================================================
+  # PRODUCT SERVICE DISCOVERY
+  # DNS: product-service.dev.local:3002
+  # ============================================================
+  ProductServiceDiscovery:
+    Type: AWS::ServiceDiscovery::Service
+    Properties:
+      Name: product-service
+      NamespaceId: !Ref ServiceDiscoveryNamespace
+      Description: Service discovery for product service
+      DnsConfig:
+        RoutingPolicy: MULTIVALUE
+        DnsRecords:
+          - Type: A
+            TTL: 60
+      HealthCheckCustomConfig:
+        FailureThreshold: 1
+      Tags:
+        - Key: Environment
+          Value: !Ref Environment
+
+
+  # ============================================================
+  # ORDER SERVICE DISCOVERY
+  # DNS: order-service.dev.local:3003
+  # ============================================================
+  OrderServiceDiscovery:
+    Type: AWS::ServiceDiscovery::Service
+    Properties:
+      Name: order-service
+      NamespaceId: !Ref ServiceDiscoveryNamespace
+      Description: Service discovery for order service
+      DnsConfig:
+        RoutingPolicy: MULTIVALUE
+        DnsRecords:
+          - Type: A
+            TTL: 60
+      HealthCheckCustomConfig:
+        FailureThreshold: 1
+      Tags:
+        - Key: Environment
+          Value: !Ref Environment
+
+
+  # ============================================================
+  # NOTIFICATION SERVICE DISCOVERY
+  # DNS: notification-service.dev.local
+  # ============================================================
+  NotificationServiceDiscovery:
+    Type: AWS::ServiceDiscovery::Service
+    Properties:
+      Name: notification-service
+      NamespaceId: !Ref ServiceDiscoveryNamespace
+      Description: Service discovery for notification service
+      DnsConfig:
+        RoutingPolicy: MULTIVALUE
+        DnsRecords:
+          - Type: A
+            TTL: 60
+      HealthCheckCustomConfig:
+        FailureThreshold: 1
+      Tags:
+        - Key: Environment
+          Value: !Ref Environment
+
+
+# ============================================================
+# OUTPUTS
+# ============================================================
+Outputs:
+  NamespaceId:
+    Description: Cloud Map namespace ID
+    Value: !Ref ServiceDiscoveryNamespace
+    Export:
+      Name: !Sub "${Environment}-namespace-id"
+
+  NamespaceName:
+    Description: Cloud Map namespace name
+    Value: !Sub "${Environment}.local"
+    Export:
+      Name: !Sub "${Environment}-namespace-name"
+
+  UserServiceDiscoveryArn:
+    Description: ARN of user service discovery
+    Value: !GetAtt UserServiceDiscovery.Arn
+    Export:
+      Name: !Sub "${Environment}-user-service-discovery-arn"
+
+  ProductServiceDiscoveryArn:
+    Description: ARN of product service discovery
+    Value: !GetAtt ProductServiceDiscovery.Arn
+    Export:
+      Name: !Sub "${Environment}-product-service-discovery-arn"
+
+  OrderServiceDiscoveryArn:
+    Description: ARN of order service discovery
+    Value: !GetAtt OrderServiceDiscovery.Arn
+    Export:
+      Name: !Sub "${Environment}-order-service-discovery-arn"
+
+  NotificationServiceDiscoveryArn:
+    Description: ARN of notification service discovery
+    Value: !GetAtt NotificationServiceDiscovery.Arn
+    Export:
+      Name: !Sub "${Environment}-notification-service-discovery-arn"
+
+  UserServiceUrl:
+    Description: Internal DNS URL for user service
+    Value: !Sub "http://user-service.${Environment}.local:3001"
+    Export:
+      Name: !Sub "${Environment}-user-service-url"
+
+  ProductServiceUrl:
+    Description: Internal DNS URL for product service
+    Value: !Sub "http://product-service.${Environment}.local:3002"
+    Export:
+      Name: !Sub "${Environment}-product-service-url"
+
+  OrderServiceUrl:
+    Description: Internal DNS URL for order service
+    Value: !Sub "http://order-service.${Environment}.local:3003"
+    Export:
+      Name: !Sub "${Environment}-order-service-url"
+
+  NotificationServiceUrl:
+    Description: Internal DNS URL for notification service
+    Value: !Sub "http://notification-service.${Environment}.local:3004"
+    Export:
+      Name: !Sub "${Environment}-notification-service-url"
