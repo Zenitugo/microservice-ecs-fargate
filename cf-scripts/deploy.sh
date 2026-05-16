@@ -38,7 +38,7 @@ STACKS=(
   "network.yaml:microservice-network"
   "sg.yaml:microservice-sg"
   "ecr.yaml:microservice-ecr"
-  "secrets.yaml:microservice-secrets"
+  "service-discovery.yaml:microservice-servicediscovery"
   "sqs.yaml:microservice-sqs"
   "rds.yaml:microservice-rds"
   "iam.yaml:microservice-iam"
