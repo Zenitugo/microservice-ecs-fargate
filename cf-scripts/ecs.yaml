@@ -100,7 +100,11 @@ Resources:
               Fn::Sub: "${Environment}-private-subnet-2-id"
           SecurityGroups:
             - !ImportValue
-              Fn::Sub: "${Environment}-user-sg-id"    
+              Fn::Sub: "${Environment}-user-sg-id"
+      ServiceRegistries:
+        - RegistryArn: !ImportValue
+            Fn::Sub: "${Environment}-user-service-discovery-arn"
+          Port: 3001    
       LoadBalancers:
         - TargetGroupArn: !ImportValue
             Fn::Sub: "${Environment}-UserServiceTargetGroupARN"
@@ -179,6 +183,10 @@ Resources:
           SecurityGroups:
             - !ImportValue
               Fn::Sub: "${Environment}-product-sg-id"    
+      ServiceRegistries:
+        - RegistryArn: !ImportValue
+            Fn::Sub: "${Environment}-product-service-discovery-arn"
+          Port: 3002
       LoadBalancers:
         - TargetGroupArn: !ImportValue
             Fn::Sub: "${Environment}-ProductServiceTargetGroupARN"
@@ -209,6 +217,12 @@ Resources:
               HostPort: 3003
               Protocol: tcp
           Environment:
+            - Name: USER_SERVICE_URL
+              Value: !ImportValue
+                Fn::Sub: '${Environment}-user-service-url'
+            - Name: PRODUCT_SERVICE_URL
+              Value: !ImportValue
+                Fn::Sub: '${Environment}-product-service-url'
             - Name: AWS_REGION
               Value: !Ref Region
 
