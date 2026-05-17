@@ -56,6 +56,21 @@ Resources:
         - Key: Name
           Value: !Sub "${Environment}-lb-sg"
 
+  OrderServiceSG:
+  Type: AWS::EC2::SecurityGroup
+  Properties:
+    GroupDescription: Security group for ECS tasks
+    VpcId: !ImportValue
+      Fn::Sub: "${Environment}-vpc-id"
+    SecurityGroupIngress:
+      - IpProtocol: tcp
+        FromPort: !Ref OrderServicePort
+        ToPort: !Ref OrderServicePort
+        SourceSecurityGroupId: !Ref LoadBalancerSG
+    Tags:
+      - Key: Name
+        Value: !Sub "${Environment}-ecs-sg"
+
   UserServiceSG:
     Type: AWS::EC2::SecurityGroup
     Properties:
@@ -63,10 +78,18 @@ Resources:
       VpcId: !ImportValue
         Fn::Sub: "${Environment}-vpc-id"
       SecurityGroupIngress:
+      # ALB → User service
         - IpProtocol: tcp
           FromPort: !Ref UserServicePort
           ToPort: !Ref UserServicePort
-          SourceSecurityGroupId: !Ref LoadBalancerSG
+          SourceSecurityGroupId:  !Ref LoadBalancerSG
+        
+         # Order Sevice → User service
+        - IpPotocol: tcp
+          FromPort: !Ref UserServicePort
+          ToPort: !Ref UserServicePort
+          SourceSecirityGroupId: !Ref OrderServiceSG
+     
       Tags:
         - Key: Name
           Value: !Sub "${Environment}-ecs-sg"
@@ -78,28 +101,22 @@ Resources:
       VpcId: !ImportValue
         Fn::Sub: "${Environment}-vpc-id"
       SecurityGroupIngress:
+      # Alb → Product service
         - IpProtocol: tcp
           FromPort: !Ref ProductServicePort
           ToPort: !Ref ProductServicePort
           SourceSecurityGroupId: !Ref LoadBalancerSG
+
+      # Order Sevice → Product service
+        - IpProtocol: tcp
+          FromPort: !Ref ProductServicePort
+          ToPort: !Ref ProductServicePort
+          SourceSecurityGroupId: !Ref OrderServiceSG
+
       Tags:
         - Key: Name
           Value: !Sub "${Environment}-ecs-sg"
 
-  OrderServiceSG:
-    Type: AWS::EC2::SecurityGroup
-    Properties:
-      GroupDescription: Security group for ECS tasks
-      VpcId: !ImportValue
-        Fn::Sub: "${Environment}-vpc-id"
-      SecurityGroupIngress:
-        - IpProtocol: tcp
-          FromPort: !Ref OrderServicePort
-          ToPort: !Ref OrderServicePort
-          SourceSecurityGroupId: !Ref LoadBalancerSG
-      Tags:
-        - Key: Name
-          Value: !Sub "${Environment}-ecs-sg"
 
   NotificationServiceSG:
     Type: AWS::EC2::SecurityGroup
