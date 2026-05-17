@@ -85,10 +85,10 @@ Resources:
           SourceSecurityGroupId:  !Ref LoadBalancerSG
         
          # Order Sevice → User service
-        - IpPotocol: tcp
+        - IpPotocol: "tcp"
           FromPort: !Ref UserServicePort
           ToPort: !Ref UserServicePort
-          SourceSecirityGroupId: !Ref OrderServiceSG
+          SourceSecurityGroupId: !Ref OrderServiceSG
      
       Tags:
         - Key: Name
