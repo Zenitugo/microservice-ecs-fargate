@@ -302,7 +302,7 @@ Resources:
           Environment:
             - Name: SQS_QUEUE_URL
               Value: !ImportValue
-                Fn::Sub: "${Environment}-SQSQueueURL"
+                Fn::Sub: "${Environment}-OrdersQueueURL"
             
             - Name: Region
               Value: !Ref Region
