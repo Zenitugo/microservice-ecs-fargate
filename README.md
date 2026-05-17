@@ -215,7 +215,7 @@ curl http://YOUR_ALB_DNS/products
 ```bash
 curl -X POST http://YOUR_ALB_DNS/orders \
   -H "Content-Type: application/json" \
-  -d '{"userId": 1, "productId": 1, "quantity": 2}'
+  -d '{"user_id": 1, "product_id": 1, "quantity": 2}'
 ```
 
 **Get an order**
