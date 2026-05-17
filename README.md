@@ -4,14 +4,14 @@
 
 A production-grade microservices application deployed on AWS ECS Fargate using Infrastructure as Code with CloudFormation. The application is a backend that handles user management, product catalogue, order processing and notifications. When a user places an order, a message is published to an SQS queue which triggers the notification service to confirm the order.
 
-The entire infrastructure is defined as code across 12 CloudFormation stacks and deployed automatically through a GitHub Actions CI/CD pipeline.
+The entire infrastructure is defined as code across 13 CloudFormation stacks and deployed automatically through a GitHub Actions CI/CD pipeline.
 
 ---
 
 ## 🚀 Features
 
 - Four containerised microservices running on AWS ECS Fargate
-- Infrastructure as Code using AWS CloudFormation (12 stacks)
+- Infrastructure as Code using AWS CloudFormation (13 stacks)
 - Automated CI/CD pipeline with GitHub Actions
 - Asynchronous order processing using Amazon SQS
 - Separate PostgreSQL RDS instance per service
@@ -223,7 +223,7 @@ curl http://YOUR_ALB_DNS/orders/1
 
 ## 📝 Blog Posts
 
-This project is explained across three blog posts:
+This project is explained across the blog posts series:
 
 - [Building, Securing and Observing a Multi-Service App on ECS Fargate](https://dhebbydavid.hashnode.dev/series/microservice-app-deployment-aws)
 
