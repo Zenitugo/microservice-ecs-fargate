@@ -57,7 +57,7 @@ Resources:
                   - sqs:DeleteMessage
                   - sqs:GetQueueAttributes
                 Resource: !ImportValue
-                  Fn::Sub: "${Environment}-OrdersQueueArn"
+                  Fn::Sub: "${Environment}-NotificationQueueArn"
       Tags:
           - Key: Environment
             Value: !Ref Environment
