@@ -221,6 +221,9 @@ Resources:
             - Name: PRODUCT_SERVICE_URL
               Value: !ImportValue
                 Fn::Sub: '${Environment}-product-service-url'
+            - Name: SQS_QUEUE_URL
+              Value: !ImportValue
+                Fn::Sub: "${Environment}-OrdersQueueURL"
             - Name: AWS_REGION
               Value: !Ref Region
 
@@ -318,6 +321,7 @@ Resources:
     Type: AWS::ECS::Service
     Properties:
       Cluster: !Ref ECSCluster 
+      ServiceName: !Sub "${Environment}-notification-service"
       TaskDefinition: !Ref NotificationEcsTaskDefinition
       DesiredCount: 1
       LaunchType: FARGATE
