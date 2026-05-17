@@ -100,6 +100,8 @@ for entry in "${STACKS[@]}"; do
     aws cloudformation wait stack-delete-complete \
       --stack-name $STACK
 
+    sleep 5
+
     if [ $? -ne 0 ]; then
       echo "❌ Stack deletion failed for $STACK"
       exit 1
