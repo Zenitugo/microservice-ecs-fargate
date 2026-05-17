@@ -103,8 +103,7 @@ Resources:
               Fn::Sub: "${Environment}-user-sg-id"
       ServiceRegistries:
         - RegistryArn: !ImportValue
-            Fn::Sub: "${Environment}-user-service-discovery-arn"
-          Port: 3001    
+            Fn::Sub: "${Environment}-user-service-discovery-arn" 
       LoadBalancers:
         - TargetGroupArn: !ImportValue
             Fn::Sub: "${Environment}-UserServiceTargetGroupARN"
@@ -186,7 +185,6 @@ Resources:
       ServiceRegistries:
         - RegistryArn: !ImportValue
             Fn::Sub: "${Environment}-product-service-discovery-arn"
-          Port: 3002
       LoadBalancers:
         - TargetGroupArn: !ImportValue
             Fn::Sub: "${Environment}-ProductServiceTargetGroupARN"
