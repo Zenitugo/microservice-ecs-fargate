@@ -246,6 +246,11 @@ curl http://YOUR_ALB_DNS/orders/1
 ### All orders on the browser
 <img width="1920" height="265" alt="orders2" src="https://github.com/user-attachments/assets/066ea3a0-e489-4f35-a3d4-d6cf0cfe6cdb" />
 
+## Notification
+
+<img width="1920" height="804" alt="notification" src="https://github.com/user-attachments/assets/f2a99f85-b97c-415e-8afa-093f165eb91f" />
+
+
 ---
 
 
