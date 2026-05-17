@@ -158,6 +158,16 @@ The pipeline will automatically:
 - Build and push Docker images to ECR
 - Deploy ECS services
 
+
+### Destroy Infrastructure
+
+```bash
+# Via GitHub Actions - go to Actions tab, select Destroy workflow, run manually
+```
+
+
+---
+
 ## 🧪 Testing the Application
 
 Once the infrastructure is deployed and services are running,
@@ -213,27 +223,39 @@ curl -X POST http://YOUR_ALB_DNS/orders \
 curl http://YOUR_ALB_DNS/orders/1
 ```
 
-### Destroy Infrastructure
-
-```bash
-# Via GitHub Actions - go to Actions tab, select Destroy workflow, run manually
-```
 
 ---
 
 ## Screenshots
+
 ### Users created on the terminal
 <img width="1920" height="320" alt="users" src="https://github.com/user-attachments/assets/07728805-2e53-4fbe-8ef6-2508b18491d9" />
+
 ### All users on the browser
 <img width="1920" height="179" alt="users2" src="https://github.com/user-attachments/assets/195c0dcc-4949-4e69-bd34-f238604b29b1" />
+
 ### Products created on the terminal
 <img width="1920" height="444" alt="products" src="https://github.com/user-attachments/assets/192751f9-9144-4c57-8300-20b0ba7f2669" />
+
 ### All products on the browser
 <img width="1920" height="206" alt="users1" src="https://github.com/user-attachments/assets/bacdf4d2-3b33-46e4-9f7f-86c59f5c7e40" />
+
 ### Orders created on the terminal
 <img width="1920" height="285" alt="orders" src="https://github.com/user-attachments/assets/18f05ba8-7ee1-490d-a47e-1368bb1ac59e" />
+
 ### All orders on the browser
 <img width="1920" height="265" alt="orders2" src="https://github.com/user-attachments/assets/066ea3a0-e489-4f35-a3d4-d6cf0cfe6cdb" />
+
+---
+
+
+## 📝 Blog Posts
+This project is explained in blog post series:
+[Building, Securing and Observing a Multi-Service App on ECS Fargate](https://dhebbydavid.hashnode.dev/series/microservice-app-deployment-aws)
+
+---
+
+
 
 ## 👤 Author
 Your name
