@@ -54,17 +54,25 @@ Resources:
 
       
 Outputs:
-  SQSQueueURL:
-    Description: URL of the created SQS queue
+
+  NotificationQueueArn:
+    Description: ARN of notification queue
+    Value: !GetAtt SQSQueue.Arn
+    Export:
+      Name: !Sub "${Environment}-NotificationQueueArn"
+
+  NotificationQueueURL:
+    Description: URL of notification queue
     Value: !Ref SQSQueue
     Export:
-      Name: !Sub "${Environment}-SQSQueueURL"
+      Name: !Sub "${Environment}-NotificationQueueURL"
+
 
   OrdersQueueName:
     Description: Name of the orders SQS queue
     Value: !Ref OrdersQueue
     Export:
-      Name: !Sub "${Environment}-OrdersQueueName"
+      Name: !Sub "${Environment}-OrdersQueueURL"
 
   OrderQueueArn:
     Description: ARN of the orders SQS queue
