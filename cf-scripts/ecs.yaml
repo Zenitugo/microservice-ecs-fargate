@@ -139,7 +139,7 @@ Resources:
             - Name: DB_USER
               Value: dbadmin
 
-            - NAME: DB_NAME
+            - Name: DB_NAME
               Value: productdb
 
             - Name: DB_PORT
