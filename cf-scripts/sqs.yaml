@@ -68,7 +68,7 @@ Outputs:
       Name: !Sub "${Environment}-NotificationQueueURL"
 
 
-  OrdersQueueName:
+  OrdersQueueURL:
     Description: Name of the orders SQS queue
     Value: !Ref OrdersQueue
     Export:
