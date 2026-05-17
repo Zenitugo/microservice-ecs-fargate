@@ -68,8 +68,14 @@ for entry in "${STACKS[@]}"; do
     --query "Stacks[0].StackStatus" \
     --output text 2>/dev/null)
 
-  echo "Current stack status: $STACK_STATUS"
 
+  if [[ "$STACK_STATUS" == "None" ]] || [[ -z "$STACK_STATUS" ]]; then
+    echo "ℹ️ Stack does not exist. Will create new stack."
+  else
+    echo "Current stack status: $STACK_STATUS"
+  fi
+
+ 
   # ==========================================================
   # Handle failed rollback states automatically
   # ==========================================================
