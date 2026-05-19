@@ -263,7 +263,7 @@ This project is explained in blog post series:
 
 
 ## 👤 Author
-Your name
-AWS Builders Community Programme - Containers Track
+### Ugochi Deborah Ukaegbu 
+**AWS Builders Community Programme - Containers Track**
 
 ---
